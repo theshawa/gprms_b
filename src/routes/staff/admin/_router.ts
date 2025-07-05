@@ -5,6 +5,10 @@ import {
   createStaffMemberHandlerBodySchema,
 } from "./create-staff-member";
 import { getActivityLogsHandler } from "./get-activity-logs";
+import {
+  updateStaffMemberHandler,
+  updateStaffMemberHandlerBodySchema,
+} from "./update-staff-member";
 
 export const adminRouter = Router();
 
@@ -13,4 +17,9 @@ adminRouter.post(
   "/create-staff-member",
   bodyValidatorMiddleware(createStaffMemberHandlerBodySchema),
   createStaffMemberHandler
+);
+adminRouter.put(
+  "/update-staff-member/:id",
+  bodyValidatorMiddleware(updateStaffMemberHandlerBodySchema),
+  updateStaffMemberHandler
 );

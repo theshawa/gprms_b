@@ -1,4 +1,4 @@
-import { StaffMember, StaffRole } from "@prisma/client";
+import { StaffMember } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
@@ -6,7 +6,7 @@ import { Exception } from "../../../lib/exception";
 import { prisma } from "../../../prisma";
 import { hashPassword } from "../../../utils/password";
 
-export const createStaffMemberHandlerBodySchema = z.object({
+export const updateStaffMemberHandlerBodySchema = z.object({
   name: z.string().nonempty("name is required").trim(),
   username: z.string().nonempty("username is required").trim(),
   password: z
@@ -14,40 +14,44 @@ export const createStaffMemberHandlerBodySchema = z.object({
     .nonempty("password is required")
     .min(6, "password must be at least 6 characters long")
     .trim(),
-  role: z.enum(["KitchenManager", "Cashier", "Waiter"]),
 });
 
-export const createStaffMemberHandler: RequestHandler<
-  {},
+export const updateStaffMemberHandler: RequestHandler<
+  { id: string },
   Omit<StaffMember, "passwordHash">,
-  z.infer<typeof createStaffMemberHandlerBodySchema>
+  z.infer<typeof updateStaffMemberHandlerBodySchema>
 > = async (req, res) => {
   const currentStaffMember = await prisma.staffMember.findFirst({
     where: {
       username: req.body.username,
+      id: {
+        not: res.locals.user.id,
+      },
     },
   });
 
   if (currentStaffMember) {
     throw new Exception(
       StatusCodes.CONFLICT,
-      "user with this username already exists"
+      "another user with this username already exists"
     );
   }
 
-  const passwordHash = await hashPassword(req.body.password);
+  const passwordHash = await hashPassword("123456");
 
-  const staffMember = await prisma.staffMember.create({
+  const staffMember = await prisma.staffMember.update({
     data: {
-      role: req.body.role as StaffRole,
       name: req.body.name,
       username: req.body.username,
       passwordHash,
+    },
+    where: {
+      id: parseInt(req.params.id),
     },
     omit: {
       passwordHash: true,
     },
   });
 
-  res.status(StatusCodes.CREATED).json(staffMember);
+  res.status(StatusCodes.OK).json(staffMember);
 };
