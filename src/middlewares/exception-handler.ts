@@ -1,0 +1,28 @@
+import { ErrorRequestHandler } from "express";
+import { Exception } from "../lib/exception";
+
+export const exceptionHandlerMiddleware: ErrorRequestHandler = (
+  err,
+  _,
+  res,
+  next
+) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  if (err instanceof Exception) {
+    res.status(err.statusCode).json({
+      error: err.message,
+      statusCode: err.statusCode,
+    });
+    return;
+  }
+
+  console.error("Unknown error occurred:", err);
+
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: err.message || "An unexpected error occurred",
+  });
+};
