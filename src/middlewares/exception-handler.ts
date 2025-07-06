@@ -13,7 +13,7 @@ export const exceptionHandlerMiddleware: ErrorRequestHandler = (
 
   if (err instanceof Exception) {
     res.status(err.statusCode).json({
-      error: err.message,
+      message: err.message,
       statusCode: err.statusCode,
     });
     return;

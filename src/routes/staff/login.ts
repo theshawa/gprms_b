@@ -8,12 +8,8 @@ import { createJWTAccessToken, createJWTRefreshToken } from "../../utils/jwt";
 import { verifyPassword } from "../../utils/password";
 
 export const staffLoginHandlerBodySchema = z.object({
-  username: z.string().nonempty("username is required").trim(),
-  password: z
-    .string()
-    .nonempty("password is required")
-    .min(6, "password must be at least 6 characters long")
-    .trim(),
+  username: z.string().nonempty("required").trim(),
+  password: z.string().nonempty("required").trim(),
 });
 
 export const staffLoginHandler: RequestHandler<
@@ -30,7 +26,10 @@ export const staffLoginHandler: RequestHandler<
   });
 
   if (!staffMember) {
-    throw new Exception(StatusCodes.NOT_FOUND, "staff member not found");
+    throw new Exception(
+      StatusCodes.NOT_FOUND,
+      "User with given username not found"
+    );
   }
 
   const isPasswordValid = await verifyPassword(
@@ -38,7 +37,7 @@ export const staffLoginHandler: RequestHandler<
     staffMember.passwordHash
   );
   if (!isPasswordValid) {
-    throw new Exception(StatusCodes.UNAUTHORIZED, "invalid password");
+    throw new Exception(StatusCodes.UNAUTHORIZED, "Invalid password");
   }
 
   // create activity log
