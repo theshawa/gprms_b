@@ -4,7 +4,9 @@ import {
   createStaffMemberHandler,
   createStaffMemberHandlerBodySchema,
 } from "./create-staff-member";
+import { deleteStaffMemberHandler } from "./delete-staff-member";
 import { getActivityLogsHandler } from "./get-activity-logs";
+import { getStaffMembersHandler } from "./get-staff-members";
 import {
   updateStaffMemberHandler,
   updateStaffMemberHandlerBodySchema,
@@ -12,7 +14,6 @@ import {
 
 export const adminRouter = Router();
 
-adminRouter.get("/activity-logs/:staffMemberId", getActivityLogsHandler);
 adminRouter.post(
   "/create-staff-member",
   bodyValidatorMiddleware(createStaffMemberHandlerBodySchema),
@@ -23,3 +24,7 @@ adminRouter.put(
   bodyValidatorMiddleware(updateStaffMemberHandlerBodySchema),
   updateStaffMemberHandler
 );
+adminRouter.delete("/delete-staff-member/:id", deleteStaffMemberHandler);
+
+adminRouter.get("/staff-members", getStaffMembersHandler);
+adminRouter.get("/activity-logs/:staffMemberId", getActivityLogsHandler);
