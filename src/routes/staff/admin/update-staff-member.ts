@@ -7,13 +7,14 @@ import { prisma } from "../../../prisma";
 import { hashPassword } from "../../../utils/password";
 
 export const updateStaffMemberHandlerBodySchema = z.object({
-  name: z.string().nonempty("name is required").trim(),
-  username: z.string().nonempty("username is required").trim(),
+  name: z.string().trim().nonempty("Name is required"),
+  username: z.string().trim().nonempty("Username is required"),
   password: z
     .string()
-    .nonempty("password is required")
-    .min(6, "password must be at least 6 characters long")
-    .trim(),
+    .trim()
+    .min(6, "Password must be at least 6 characters long")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const updateStaffMemberHandler: RequestHandler<
@@ -25,7 +26,7 @@ export const updateStaffMemberHandler: RequestHandler<
     where: {
       username: req.body.username,
       id: {
-        not: res.locals.user.id,
+        not: parseInt(req.params.id),
       },
     },
   });
@@ -33,11 +34,13 @@ export const updateStaffMemberHandler: RequestHandler<
   if (currentStaffMember) {
     throw new Exception(
       StatusCodes.CONFLICT,
-      "another user with this username already exists"
+      "Another user with this username already exists"
     );
   }
 
-  const passwordHash = await hashPassword("123456");
+  const passwordHash = req.body.password
+    ? await hashPassword(req.body.password)
+    : undefined;
 
   const staffMember = await prisma.staffMember.update({
     data: {

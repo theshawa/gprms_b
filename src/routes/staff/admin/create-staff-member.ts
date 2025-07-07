@@ -7,13 +7,13 @@ import { prisma } from "../../../prisma";
 import { hashPassword } from "../../../utils/password";
 
 export const createStaffMemberHandlerBodySchema = z.object({
-  name: z.string().nonempty("name is required").trim(),
-  username: z.string().nonempty("username is required").trim(),
+  name: z.string().trim().nonempty("Name is required"),
+  username: z.string().trim().nonempty("Username is required"),
   password: z
     .string()
-    .nonempty("password is required")
-    .min(6, "password must be at least 6 characters long")
-    .trim(),
+    .trim()
+    .nonempty("Password is required")
+    .min(6, "Password must be at least 6 characters long"),
   role: z.enum(["KitchenManager", "Cashier", "Waiter"]),
 });
 
@@ -31,7 +31,7 @@ export const createStaffMemberHandler: RequestHandler<
   if (currentStaffMember) {
     throw new Exception(
       StatusCodes.CONFLICT,
-      "user with this username already exists"
+      "User with this username already exists"
     );
   }
 
