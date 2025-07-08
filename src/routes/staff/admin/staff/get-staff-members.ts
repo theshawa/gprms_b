@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { prisma } from "../../../prisma";
+import { prisma } from "../../../../prisma";
 
 export const getStaffMembersHandler: RequestHandler = async (req, res) => {
   const members = await prisma.staffMember.findMany({
