@@ -4,6 +4,7 @@ import {
   createStaffMemberHandler,
   createStaffMemberHandlerBodySchema,
 } from "./create-staff-member";
+import { deleteActivityLogsHandler } from "./delete-activity-logs";
 import { deleteStaffMemberHandler } from "./delete-staff-member";
 import { getActivityLogsHandler } from "./get-activity-logs";
 import { getStaffMembersHandler } from "./get-staff-members";
@@ -28,3 +29,5 @@ adminRouter.delete("/delete-staff-member/:id", deleteStaffMemberHandler);
 
 adminRouter.get("/staff-members", getStaffMembersHandler);
 adminRouter.get("/activity-logs/:staffMemberId", getActivityLogsHandler);
+
+adminRouter.delete("/activity-logs/:staffMemberId", deleteActivityLogsHandler);
