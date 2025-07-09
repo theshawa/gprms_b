@@ -53,3 +53,12 @@ model Customer {
 
     createdAt DateTime @default(now())
 }
+
+model Location {
+    id Int @id @default(autoincrement())
+
+    name        String
+    description String
+
+    createdAt DateTime @default(now())
+}
