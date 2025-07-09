@@ -6,7 +6,7 @@ import { prisma } from "../../../../prisma";
 export const deleteDiningAreaHandler: RequestHandler<{
   id: string;
 }> = async (req, res) => {
-  const currentDiningArea = await prisma.diningDiningArea.findFirst({
+  const currentDiningArea = await prisma.diningArea.findFirst({
     where: {
       id: parseInt(req.params.id),
     },
@@ -19,7 +19,7 @@ export const deleteDiningAreaHandler: RequestHandler<{
     );
   }
 
-  await prisma.diningDiningArea.delete({
+  await prisma.diningArea.delete({
     where: {
       id: parseInt(req.params.id),
     },
