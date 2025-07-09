@@ -3,23 +3,23 @@ import { StatusCodes } from "http-status-codes";
 import { Exception } from "../../../../lib/exception";
 import { prisma } from "../../../../prisma";
 
-export const deleteLocationHandler: RequestHandler<{
+export const deleteDiningAreaHandler: RequestHandler<{
   id: string;
 }> = async (req, res) => {
-  const currentLocation = await prisma.location.findFirst({
+  const currentDiningArea = await prisma.diningDiningArea.findFirst({
     where: {
       id: parseInt(req.params.id),
     },
   });
 
-  if (!currentLocation) {
+  if (!currentDiningArea) {
     throw new Exception(
       StatusCodes.NOT_FOUND,
-      "Location with this ID does not exist"
+      "Dining Area with this ID does not exist"
     );
   }
 
-  await prisma.location.delete({
+  await prisma.diningDiningArea.delete({
     where: {
       id: parseInt(req.params.id),
     },

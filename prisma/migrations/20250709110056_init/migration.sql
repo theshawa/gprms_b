@@ -34,13 +34,23 @@ CREATE TABLE "Customer" (
 );
 
 -- CreateTable
-CREATE TABLE "Location" (
+CREATE TABLE "DiningArea" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Location_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "DiningArea_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Table" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "diningAreaId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Table_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -51,3 +61,6 @@ CREATE UNIQUE INDEX "Customer_phone_key" ON "Customer"("phone");
 
 -- AddForeignKey
 ALTER TABLE "StaffActivityLog" ADD CONSTRAINT "StaffActivityLog_staffMemberId_fkey" FOREIGN KEY ("staffMemberId") REFERENCES "StaffMember"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Table" ADD CONSTRAINT "Table_diningAreaId_fkey" FOREIGN KEY ("diningAreaId") REFERENCES "DiningArea"("id") ON DELETE CASCADE ON UPDATE CASCADE;
