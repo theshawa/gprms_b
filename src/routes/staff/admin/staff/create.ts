@@ -24,7 +24,7 @@ export const createStaffMemberHandler: RequestHandler<
 > = async (req, res) => {
   const currentStaffMember = await prisma.staffMember.findFirst({
     where: {
-      username: req.body.username,
+      username: req.body.username.toLowerCase().trim(),
     },
   });
 
@@ -40,8 +40,8 @@ export const createStaffMemberHandler: RequestHandler<
   const staffMember = await prisma.staffMember.create({
     data: {
       role: req.body.role as StaffRole,
-      name: req.body.name,
-      username: req.body.username,
+      name: req.body.name.trim(),
+      username: req.body.username.toLowerCase().trim(),
       passwordHash,
     },
     omit: {

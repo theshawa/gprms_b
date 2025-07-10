@@ -2,6 +2,7 @@ import { DiningArea } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
+import { Exception } from "../../../../lib/exception";
 import { prisma } from "../../../../prisma";
 
 export const updateDiningAreaHandlerBodySchema = z.object({
@@ -14,10 +15,26 @@ export const updateDiningAreaHandler: RequestHandler<
   DiningArea,
   z.infer<typeof updateDiningAreaHandlerBodySchema>
 > = async (req, res) => {
+  const currentDiningArea = await prisma.diningArea.findFirst({
+    where: {
+      name: req.body.name.toUpperCase().trim(),
+      id: {
+        not: parseInt(req.params.id),
+      },
+    },
+  });
+
+  if (currentDiningArea) {
+    throw new Exception(
+      StatusCodes.CONFLICT,
+      "Another dining area with this name already exists"
+    );
+  }
+
   const diningArea = await prisma.diningArea.update({
     data: {
-      name: req.body.name,
-      description: req.body.description,
+      name: req.body.name.toUpperCase().trim(),
+      description: req.body.description.trim(),
     },
     where: {
       id: parseInt(req.params.id),

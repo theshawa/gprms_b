@@ -28,8 +28,9 @@ model StaffMember {
 
     name String
 
-    role                  StaffRole
-    StaffMemberActivities StaffActivityLog[]
+    role                StaffRole
+    activities          StaffActivityLog[]
+    assignedDiningAreas WaiterAssignment[]
 }
 
 model StaffActivityLog {
@@ -54,23 +55,56 @@ model Customer {
     createdAt DateTime @default(now())
 }
 
+enum OrderStatusType {
+    New
+    InProgress
+    Completed
+    Rejected
+}
+
+model Order {
+    id Int @id @default(autoincrement())
+
+    orderCode String
+
+    status OrderStatusType @default(New)
+
+    createdAt DateTime @default(now())
+}
+
 model DiningArea {
     id Int @id @default(autoincrement())
 
-    name        String
+    name        String @unique
     description String
 
-    createdAt DateTime @default(now())
-    tables    Table[]
+    diningTables    DiningTable[]
+    assignedWaiters WaiterAssignment[]
 }
 
-model Table {
+model DiningTable {
     id Int @id @default(autoincrement())
 
     name         String
     diningAreaId Int
+    isReservable Boolean @default(true)
+    maxSeats     Int
 
     diningArea DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    createdAt DateTime @default(now())
+    @@unique([name, diningAreaId])
+}
+
+model WaiterAssignment {
+    id Int @id @default(autoincrement())
+
+    diningAreaId Int
+    dinnigArea   DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    waiterId Int
+    waiter   StaffMember @relation(fields: [waiterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    assignedAt DateTime @default(now())
+
+    @@unique([diningAreaId, waiterId])
 }

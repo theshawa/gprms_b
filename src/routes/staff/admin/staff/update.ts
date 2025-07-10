@@ -24,7 +24,7 @@ export const updateStaffMemberHandler: RequestHandler<
 > = async (req, res) => {
   const currentStaffMember = await prisma.staffMember.findFirst({
     where: {
-      username: req.body.username,
+      username: req.body.username.toLowerCase().trim(),
       id: {
         not: parseInt(req.params.id),
       },
@@ -44,8 +44,8 @@ export const updateStaffMemberHandler: RequestHandler<
 
   const staffMember = await prisma.staffMember.update({
     data: {
-      name: req.body.name,
-      username: req.body.username,
+      name: req.body.name.trim(),
+      username: req.body.username.toLowerCase().trim(),
       passwordHash,
     },
     where: {
