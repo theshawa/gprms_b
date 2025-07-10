@@ -3,15 +3,15 @@ import { bodyValidatorMiddleware } from "../../../../middlewares/body-validator"
 import {
   createStaffMemberHandler,
   createStaffMemberHandlerBodySchema,
-} from "./create-staff-member";
+} from "./create";
+import { deleteStaffMemberHandler } from "./delete";
 import { deleteActivityLogsHandler } from "./delete-activity-logs";
-import { deleteStaffMemberHandler } from "./delete-staff-member";
 import { getActivityLogsHandler } from "./get-activity-logs";
-import { getStaffMembersHandler } from "./get-staff-members";
+import { getAllStaffMembersHandler } from "./get-all";
 import {
   updateStaffMemberHandler,
   updateStaffMemberHandlerBodySchema,
-} from "./update-staff-member";
+} from "./update";
 
 export const staffRouter = Router();
 
@@ -27,6 +27,6 @@ staffRouter.put(
 );
 staffRouter.delete("/:id", deleteStaffMemberHandler);
 
-staffRouter.get("/", getStaffMembersHandler);
+staffRouter.get("/", getAllStaffMembersHandler);
 staffRouter.get("/activity-logs/:staffMemberId", getActivityLogsHandler);
 staffRouter.delete("/activity-logs/:staffMemberId", deleteActivityLogsHandler);
