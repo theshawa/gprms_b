@@ -1,9 +1,9 @@
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
+import { verifyJWTToken } from "@/utils/jwt";
 import { StaffMember, StaffRole } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { Exception } from "../lib/exception";
-import { prisma } from "../prisma";
-import { verifyJWTToken } from "../utils/jwt";
 
 export const staffAuthRequiredMiddleware =
   (

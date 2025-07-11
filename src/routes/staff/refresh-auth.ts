@@ -1,7 +1,7 @@
+import { prisma } from "@/prisma";
+import { createJWTAccessToken, verifyJWTToken } from "@/utils/jwt";
 import { StaffMember } from "@prisma/client";
 import { RequestHandler } from "express";
-import { prisma } from "../../prisma";
-import { createJWTAccessToken, verifyJWTToken } from "../../utils/jwt";
 
 export const staffRefreshAuthHandler: RequestHandler<
   {},

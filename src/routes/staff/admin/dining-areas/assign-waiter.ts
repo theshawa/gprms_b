@@ -1,9 +1,10 @@
+import { eventBus } from "@/event-bus";
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { StaffRole, WaiterAssignment } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const assignWaiterHandlerBodySchema = z.object({
   waiterId: z.number().int().positive("Waiter Id must be a positive integer"),
@@ -46,7 +47,7 @@ export const assignWaiterHandler: RequestHandler<
   const assignment = await prisma.waiterAssignment.create({
     data: req.body,
     include: {
-      dinnigArea: {
+      diningArea: {
         include: {
           assignedWaiters: true,
         },
@@ -58,6 +59,8 @@ export const assignWaiterHandler: RequestHandler<
       },
     },
   });
+
+  eventBus.emit("waiter-assigned", waiter.id);
 
   res.status(StatusCodes.CREATED).json(assignment);
 };

@@ -1,11 +1,11 @@
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
+import { createJWTAccessToken, createJWTRefreshToken } from "@/utils/jwt";
+import { verifyPassword } from "@/utils/password";
 import { StaffMember } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
-import { Exception } from "../../lib/exception";
-import { prisma } from "../../prisma";
-import { createJWTAccessToken, createJWTRefreshToken } from "../../utils/jwt";
-import { verifyPassword } from "../../utils/password";
 
 export const staffLoginHandlerBodySchema = z.object({
   username: z.string().nonempty("required").trim(),

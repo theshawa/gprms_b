@@ -1,9 +1,9 @@
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { DiningArea } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const updateDiningAreaHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),

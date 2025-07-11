@@ -1,6 +1,6 @@
+import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { prisma } from "../../../../prisma";
 
 export const deleteActivityLogsHandler: RequestHandler<{
   staffMemberId: string;

@@ -1,9 +1,10 @@
+import { exceptionHandlerMiddleware } from "@/middlewares/exception-handler";
+import { router } from "@/routes/_router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { exceptionHandlerMiddleware } from "./middlewares/exception-handler";
-import { router } from "./routes/_router";
+import { createServer } from "http";
 
 dotenv.config();
 
@@ -23,8 +24,22 @@ app.use(router);
 
 app.use(exceptionHandlerMiddleware);
 
+process.setMaxListeners(0);
+
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.info(`server listening on http://localhost:${PORT}`);
+const server = createServer(app);
+
+server.listen(PORT, () => {
+  console.info(`HTTP server listening on http://localhost:${PORT}`);
 });
+
+const gracefulShutdown = () => {
+  server.close(() => {
+    console.log("HTTP server closed.");
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);

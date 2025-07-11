@@ -1,10 +1,10 @@
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
+import { hashPassword } from "@/utils/password";
 import { StaffMember, StaffRole } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
-import { hashPassword } from "../../../../utils/password";
 
 export const createStaffMemberHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),

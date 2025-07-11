@@ -1,5 +1,5 @@
+import { bodyValidatorMiddleware } from "@/middlewares/body-validator";
 import { Router } from "express";
-import { bodyValidatorMiddleware } from "../../../../middlewares/body-validator";
 import {
   assignWaiterHandler,
   assignWaiterHandlerBodySchema,

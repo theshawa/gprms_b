@@ -1,9 +1,10 @@
+import { eventBus } from "@/event-bus";
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { DiningTable } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const updateDiningTableHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
@@ -48,6 +49,8 @@ export const updateDiningTableHandler: RequestHandler<
       diningArea: true,
     },
   });
+
+  eventBus.emit("dining-table-updated-in-dining-area", req.body.diningAreaId);
 
   res.status(StatusCodes.OK).json(diningTable);
 };

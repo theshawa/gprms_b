@@ -1,5 +1,5 @@
+import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
-import { prisma } from "../../../../prisma";
 
 export const getAllStaffMembersHandler: RequestHandler<
   {},
