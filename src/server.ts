@@ -1,5 +1,6 @@
 import { exceptionHandlerMiddleware } from "@/middlewares/exception-handler";
 import { router } from "@/routes/_router";
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -28,14 +29,16 @@ process.setMaxListeners(0);
 
 const PORT = process.env.PORT || 3000;
 
-const server = createServer(app);
+export const expressServer = createServer(app);
 
-server.listen(PORT, () => {
+expressServer.listen(PORT, () => {
   console.info(`HTTP server listening on http://localhost:${PORT}`);
 });
 
+import "./socket/server";
+
 const gracefulShutdown = () => {
-  server.close(() => {
+  expressServer.close(() => {
     console.log("HTTP server closed.");
     process.exit(0);
   });

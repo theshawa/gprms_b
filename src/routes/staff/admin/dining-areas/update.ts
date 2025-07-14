@@ -1,3 +1,4 @@
+import { eventBus } from "@/event-bus";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { DiningArea } from "@prisma/client";
@@ -40,6 +41,8 @@ export const updateDiningAreaHandler: RequestHandler<
       id: parseInt(req.params.id),
     },
   });
+
+  eventBus.emit("dining-area-updated", parseInt(req.params.id));
 
   res.status(StatusCodes.OK).json(diningArea);
 };
