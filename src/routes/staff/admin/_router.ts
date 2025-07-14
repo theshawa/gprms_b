@@ -1,25 +1,10 @@
 import { Router } from "express";
-import { bodyValidatorMiddleware } from "../../../middlewares/body-validator";
-import {
-  createStaffMemberHandler,
-  createStaffMemberHandlerBodySchema,
-} from "./create-staff-member";
-import { getActivityLogsHandler } from "./get-activity-logs";
-import {
-  updateStaffMemberHandler,
-  updateStaffMemberHandlerBodySchema,
-} from "./update-staff-member";
+import { diningAreasRouter } from "./dining-areas/_router";
+import { diningTablesRouter } from "./dining-tables/_router";
+import { staffRouter } from "./staff/_router";
 
 export const adminRouter = Router();
 
-adminRouter.get("/activity-logs/:staffMemberId", getActivityLogsHandler);
-adminRouter.post(
-  "/create-staff-member",
-  bodyValidatorMiddleware(createStaffMemberHandlerBodySchema),
-  createStaffMemberHandler
-);
-adminRouter.put(
-  "/update-staff-member/:id",
-  bodyValidatorMiddleware(updateStaffMemberHandlerBodySchema),
-  updateStaffMemberHandler
-);
+adminRouter.use("/staff", staffRouter);
+adminRouter.use("/dining-areas", diningAreasRouter);
+adminRouter.use("/dining-tables", diningTablesRouter);

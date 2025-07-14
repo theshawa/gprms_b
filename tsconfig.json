@@ -7,7 +7,10 @@
     "allowSyntheticDefaultImports": true, // Allows default imports from modules with no default export
     "strict": true, // Enables strict type-checking
     "skipLibCheck": true, // Skip type-checking declaration files (faster builds)
-    "outDir": "./dist" // Specifies output directory for compiled files
+    "outDir": "./dist",
+    "paths": {
+      "@/*": ["./src/*"], // Maps @/ to src/ for easier imports
+    }
   },
   "include": ["src/**/*"] // Include all files under the src directory
 }

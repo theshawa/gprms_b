@@ -8,6 +8,7 @@ import { staffLoginHandler, staffLoginHandlerBodySchema } from "./login";
 import { staffLogoutHandler } from "./logout";
 import { staffRefreshAuthHandler } from "./refresh-auth";
 import { kitchenManagerRouter } from "./kitchen-manager/_router";
+import { waiterRouter } from "./waiter/_router";
 
 export const staffRouter = Router();
 
@@ -27,7 +28,13 @@ staffRouter.use(
 );
 
 staffRouter.use(
-  "/kitchen-manager",
+ "/kitchen-manager",
   staffAuthRequiredMiddleware(StaffRole.KitchenManager),
   kitchenManagerRouter
+);
+
+staffRouter.use(
+ "/waiter",
+  staffAuthRequiredMiddleware(StaffRole.Waiter),
+  waiterRouter
 );

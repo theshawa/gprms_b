@@ -10,12 +10,7 @@ export const bodyValidatorMiddleware =
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.errors.map(
-          (issue: any) =>
-            `${issue.path.length ? issue.path.join(".") : "body"} is ${
-              issue.message
-            }`
-        );
+        const errorMessages = error.issues.map((issue) => issue.message);
         res.status(StatusCodes.BAD_REQUEST).json({
           error: "invalid request body",
           details: errorMessages.join(", "),
