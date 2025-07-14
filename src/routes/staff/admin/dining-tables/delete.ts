@@ -1,7 +1,8 @@
+import { eventBus } from "@/event-bus";
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const deleteDiningTableHandler: RequestHandler<{
   id: string;
@@ -24,6 +25,11 @@ export const deleteDiningTableHandler: RequestHandler<{
       id: parseInt(req.params.id),
     },
   });
+
+  eventBus.emit(
+    "dining-table-deleted-in-dining-area",
+    currentDiningTable.diningAreaId
+  );
 
   res.sendStatus(StatusCodes.OK);
 };

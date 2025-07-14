@@ -1,7 +1,7 @@
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const deleteStaffMemberHandler: RequestHandler<{ id: string }> = async (
   req,

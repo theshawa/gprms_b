@@ -1,9 +1,10 @@
+import { eventBus } from "@/event-bus";
+import { Exception } from "@/lib/exception";
+import { prisma } from "@/prisma";
 import { StaffRole, WaiterAssignment } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { Exception } from "../../../../lib/exception";
-import { prisma } from "../../../../prisma";
 
 export const unAssignWaiterHandlerBodySchema = z.object({
   waiterId: z.number().int().positive("Waiter Id must be a positive integer"),
@@ -48,7 +49,7 @@ export const unAssignWaiterHandler: RequestHandler<
       id: currentAssignment.id,
     },
     include: {
-      dinnigArea: {
+      diningArea: {
         include: {
           assignedWaiters: true,
         },
@@ -60,6 +61,8 @@ export const unAssignWaiterHandler: RequestHandler<
       },
     },
   });
+
+  eventBus.emit("waiter-unassigned", waiter.id);
 
   res.status(StatusCodes.OK).json(assignment);
 };

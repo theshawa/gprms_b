@@ -1,6 +1,6 @@
+import { Config } from "@/config";
+import { AuthPayload } from "@/lib/auth-payload";
 import jwt from "jsonwebtoken";
-import { Config } from "../config";
-import { AuthPayload } from "../lib/auth-payload";
 
 export const createJWTAccessToken = (data: AuthPayload): string => {
   return jwt.sign(data, Config.ACCESS_TOKEN_SECRET, {

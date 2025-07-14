@@ -1,5 +1,5 @@
+import { Exception } from "@/lib/exception";
 import { ErrorRequestHandler } from "express";
-import { Exception } from "../lib/exception";
 
 export const exceptionHandlerMiddleware: ErrorRequestHandler = (
   err,

@@ -1,6 +1,6 @@
+import { prisma } from "@/prisma";
 import { StaffMember } from "@prisma/client";
 import { RequestHandler } from "express";
-import { prisma } from "../../../../prisma";
 
 export const getAssignedWaitersHandler: RequestHandler<
   {
