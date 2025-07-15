@@ -1,8 +1,6 @@
 import { Router } from "express";
-import { completeOrderHandler } from "./complete-order";
-import { createOrderHandler } from "./create-order";
+import { startOrderHandler } from "./start-order";
 
 export const testRouter = Router();
 
-testRouter.post("/create-order/:diningTableId", createOrderHandler);
-testRouter.post("/complete-order/:diningTableId", completeOrderHandler);
+testRouter.post("/start-order/:diningTableId", startOrderHandler);

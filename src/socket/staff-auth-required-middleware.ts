@@ -24,6 +24,13 @@ export const staffAuthRequiredMiddleware =
       omit: {
         passwordHash: true,
       },
+      include: {
+        assignedDiningAreas: {
+          include: {
+            diningArea: true,
+          },
+        },
+      },
     });
 
     if (!user) {

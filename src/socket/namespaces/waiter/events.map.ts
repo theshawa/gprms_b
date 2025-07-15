@@ -14,4 +14,8 @@ export interface WaiterEmitEventsMap {
   diningTableStatusError: (error: any) => void;
   ongoingOrdersCount: (count: number) => void;
   ongoingOrdersCountError: (error: any) => void;
+  customerWaitingAtDiningTable: (data: {
+    tableId: number;
+    diningAreaId: number; // Assuming diningAreaId is the same as diningTableId for this example
+  }) => void;
 }

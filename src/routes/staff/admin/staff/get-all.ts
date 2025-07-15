@@ -21,7 +21,11 @@ export const getAllStaffMembersHandler: RequestHandler<
     },
     where: whereClause,
     include: {
-      assignedDiningAreas: true,
+      assignedDiningAreas: {
+        include: {
+          diningArea: true,
+        },
+      },
     },
   });
 
