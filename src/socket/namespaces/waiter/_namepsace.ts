@@ -1,4 +1,5 @@
 import { eventBus } from "@/event-bus";
+import { prisma } from "@/prisma";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
 import { StaffMember, StaffRole } from "@prisma/client";
@@ -16,7 +17,9 @@ waiterNamespace.on(
       WaiterListenEventsMap,
       WaiterEmitEventsMap,
       {},
-      { user: StaffMember }
+      {
+        user: StaffMember;
+      }
     >
   ) => {
     socket.on("getDiningTables", async () => {
@@ -77,6 +80,29 @@ waiterNamespace.on(
       }
     };
 
+    const handleOrderStarted = async (diningTableId: number) => {
+      try {
+        const diningTable = await prisma.diningTable.findUnique({
+          where: { id: diningTableId },
+          include: {
+            diningArea: true,
+          },
+        });
+
+        if (!diningTable) {
+          console.error(`Dining table with ID ${diningTableId} not found`);
+          return;
+        }
+
+        socket.emit("customerWaitingAtDiningTable", {
+          tableId: diningTableId,
+          diningAreaId: diningTable.diningArea.id,
+        });
+      } catch (error) {
+        console.error("Error handling order started:", error);
+      }
+    };
+
     const eventBusListeners = [
       ["waiter-assigned", handleWaiterAssignmentChange],
       ["waiter-unassigned", handleWaiterAssignmentChange],
@@ -84,6 +110,7 @@ waiterNamespace.on(
       ["dining-table-created-in-dining-area", handleDiningAreaChange],
       ["dining-table-deleted-in-dining-area", handleDiningAreaChange],
       ["dining-table-updated-in-dining-area", handleDiningAreaChange],
+      ["order-started", handleOrderStarted],
     ] as const;
 
     eventBusListeners.forEach(([event, handler]) => {
