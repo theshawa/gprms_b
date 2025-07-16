@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: gprms
+    ports:
+      - "5432:5432"
+    volumes:
+      - .docker/db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - .docker/redis_data:/data
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

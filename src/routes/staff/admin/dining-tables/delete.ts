@@ -1,6 +1,6 @@
-import { eventBus } from "@/event-bus";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
+import { publishEvent } from "@/redis/events/publisher";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -26,7 +26,7 @@ export const deleteDiningTableHandler: RequestHandler<{
     },
   });
 
-  eventBus.emit(
+  await publishEvent(
     "dining-table-deleted-in-dining-area",
     currentDiningTable.diningAreaId
   );

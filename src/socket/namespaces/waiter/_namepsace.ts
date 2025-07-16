@@ -1,5 +1,8 @@
-import { eventBus } from "@/event-bus";
 import { prisma } from "@/prisma";
+import {
+  subscribeToEvent,
+  unsubscribeFromEvent,
+} from "@/redis/events/consumer";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
 import { StaffMember, StaffRole } from "@prisma/client";
@@ -114,12 +117,12 @@ waiterNamespace.on(
     ] as const;
 
     eventBusListeners.forEach(([event, handler]) => {
-      eventBus.on(event, handler);
+      subscribeToEvent(event, handler);
     });
 
     socket.on("disconnect", () => {
-      eventBusListeners.forEach(([event, handler]) => {
-        eventBus.off(event, handler);
+      eventBusListeners.forEach(([event]) => {
+        unsubscribeFromEvent(event);
       });
 
       socket.removeAllListeners();

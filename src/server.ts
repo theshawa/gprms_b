@@ -1,6 +1,7 @@
 import { exceptionHandlerMiddleware } from "@/middlewares/exception-handler";
 import { router } from "@/routes/_router";
 
+import { Logger } from "@/lib/logger";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -31,15 +32,36 @@ const PORT = process.env.PORT || 3000;
 
 export const expressServer = createServer(app);
 
-expressServer.listen(PORT, () => {
-  console.info(`HTTP server listening on http://localhost:${PORT}`);
-});
+import {
+  connectRedisEventsConsumer,
+  disconnectRedisEventsConsumer,
+} from "@/redis/events/consumer";
+import {
+  connectRedisEventsPublisher,
+  disconnectRedisEventsPublisher,
+} from "@/redis/events/publisher";
+import { connectRedisStorage, disconnectRedisStorage } from "@/redis/storage";
+(async () => {
+  await connectRedisStorage();
+  await connectRedisEventsPublisher();
+  await connectRedisEventsConsumer();
+
+  expressServer.listen(PORT, () => {
+    Logger.log(
+      "SERVER HEALTH",
+      `HTTP server listening on http://localhost:${PORT}`
+    );
+  });
+})();
 
 import "./socket/server";
 
-const gracefulShutdown = () => {
+const gracefulShutdown = async () => {
+  disconnectRedisEventsConsumer();
+  disconnectRedisEventsPublisher();
+  disconnectRedisStorage();
   expressServer.close(() => {
-    console.log("HTTP server closed.");
+    Logger.log("SERVER HEALTH", "HTTP server closed gracefully.");
     process.exit(0);
   });
 };

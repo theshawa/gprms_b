@@ -1,6 +1,6 @@
-import { eventBus } from "@/event-bus";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
+import { publishEvent } from "@/redis/events/publisher";
 import { DiningArea } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -42,7 +42,7 @@ export const updateDiningAreaHandler: RequestHandler<
     },
   });
 
-  eventBus.emit("dining-area-updated", parseInt(req.params.id));
+  await publishEvent("dining-area-updated", parseInt(req.params.id));
 
   res.status(StatusCodes.OK).json(diningArea);
 };

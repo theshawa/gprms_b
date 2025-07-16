@@ -1,6 +1,6 @@
-import { eventBus } from "@/event-bus";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
+import { publishEvent } from "@/redis/events/publisher";
 import { StaffRole, WaiterAssignment } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -62,7 +62,7 @@ export const unAssignWaiterHandler: RequestHandler<
     },
   });
 
-  eventBus.emit("waiter-unassigned", waiter.id);
+  await publishEvent("waiter-unassigned", waiter.id);
 
   res.status(StatusCodes.OK).json(assignment);
 };
