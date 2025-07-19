@@ -9,6 +9,7 @@ import { staffLogoutHandler } from "./logout";
 import { staffRefreshAuthHandler } from "./refresh-auth";
 import { kitchenManagerRouter } from "./kitchen-manager/_router";
 import { waiterRouter } from "./waiter/_router";
+import { cashierRouter } from "./cashier/_router";
 
 export const staffRouter = Router();
 
@@ -37,4 +38,10 @@ staffRouter.use(
  "/waiter",
   staffAuthRequiredMiddleware(StaffRole.Waiter),
   waiterRouter
+);
+
+staffRouter.use (
+  "cashier",
+  staffAuthRequiredMiddleware(StaffRole.Cashier),
+  cashierRouter
 );
