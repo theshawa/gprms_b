@@ -32,5 +32,5 @@ export const updateIngredientHandler: RequestHandler<
     },
   });
 
-  res.status(200).json(ingredient);
+  res.json(ingredient);
 };

@@ -55,5 +55,5 @@ export const updateDiningTableHandler: RequestHandler<
     req.body.diningAreaId
   );
 
-  res.status(StatusCodes.OK).json(diningTable);
+  res.json(diningTable);
 };

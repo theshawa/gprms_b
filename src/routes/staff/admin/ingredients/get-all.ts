@@ -10,6 +10,20 @@ export const getAllIngredientsHandler: RequestHandler<
     orderBy: {
       name: "asc",
     },
+    include: {
+      stockMovements: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      dishIngredients: {
+        include: {
+          dish: true,
+          ingredient: true,
+        },
+      },
+    },
   });
-  res.status(200).json(ingredients);
+
+  res.json(ingredients);
 };

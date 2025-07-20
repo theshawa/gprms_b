@@ -44,5 +44,5 @@ export const updateDiningAreaHandler: RequestHandler<
 
   await publishEvent("dining-area-updated", parseInt(req.params.id));
 
-  res.status(StatusCodes.OK).json(diningArea);
+  res.json(diningArea);
 };
