@@ -53,5 +53,5 @@ export const createStockMovementHandler: RequestHandler<
     },
   });
 
-  res.status(201).json(movement);
+  res.status(StatusCodes.CREATED).json(movement);
 };

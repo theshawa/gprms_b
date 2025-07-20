@@ -56,5 +56,5 @@ export const updateStaffMemberHandler: RequestHandler<
     },
   });
 
-  res.status(StatusCodes.OK).json(staffMember);
+  res.json(staffMember);
 };

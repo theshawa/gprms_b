@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma";
 import { Ingredient } from "@prisma/client";
 import { RequestHandler } from "express";
+import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
 export const createIngredientHandlerBodySchema = z.object({
@@ -33,5 +34,5 @@ export const createIngredientHandler: RequestHandler<
     },
   });
 
-  res.status(201).json(ingredient);
+  res.status(StatusCodes.CREATED).json(ingredient);
 };

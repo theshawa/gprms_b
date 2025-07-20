@@ -124,7 +124,8 @@ model Ingredient {
 
     createdAt DateTime @default(now())
 
-    stockMovements IngredientStockMovement[]
+    stockMovements  IngredientStockMovement[]
+    dishIngredients DishIngredient[]
 }
 
 model IngredientStockMovement {
@@ -137,4 +138,81 @@ model IngredientStockMovement {
     reason   String
 
     createdAt DateTime @default(now())
+}
+
+model Dish {
+    id Int @id @default(autoincrement())
+
+    name        String @unique
+    description String
+
+    price Float @default(0.0)
+
+    ingredients DishIngredient[]
+    menuItems   MenuItem[]
+}
+
+model DishIngredient {
+    id Int @id @default(autoincrement())
+
+    dishId Int
+    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    ingredientId Int
+    ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    quantity Float
+
+    @@unique([dishId, ingredientId])
+}
+
+enum Meal {
+    Breakfast
+    Brunch
+    Lunch
+    HighTea
+    Dinner
+    Snack
+    Supper
+    LateNight
+}
+
+model Menu {
+    id Int @id @default(autoincrement())
+
+    name        String @unique
+    meal        Meal
+    description String
+
+    isActive Boolean @default(false)
+
+    menuSections MenuSection[]
+}
+
+model MenuSection {
+    id Int @id @default(autoincrement())
+
+    menuId Int
+    menu   Menu @relation(fields: [menuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    name        String
+    description String
+
+    position Int
+
+    menuItems MenuItem[]
+}
+
+model MenuItem {
+    id Int @id @default(autoincrement())
+
+    menuSectionId Int
+    menuSection   MenuSection @relation(fields: [menuSectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    dishId Int
+    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    position Int
+
+    @@unique([menuSectionId, dishId])
 }

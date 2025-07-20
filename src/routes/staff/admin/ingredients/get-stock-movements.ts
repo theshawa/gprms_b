@@ -27,6 +27,18 @@ export const getStockMovementsHandler: RequestHandler<
     },
     skip: skip,
     take: perPage,
+    include: {
+      ingredient: {
+        include: {
+          dishIngredients: {
+            include: {
+              dish: true,
+              ingredient: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   res.json({ totalCount, movements });
