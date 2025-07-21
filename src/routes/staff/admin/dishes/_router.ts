@@ -1,23 +1,19 @@
-import { bodyValidatorMiddleware } from "@/middlewares/body-validator";
+import { multerFileUpload } from "@/multer";
 import { Router } from "express";
-import { createDishHandler, createDishHandlerBodySchema } from "./create";
+import { createDishHandler } from "./create";
 import { deleteDishHandler } from "./delete";
 import { getAllDishesHandler } from "./get-all";
-import { updateDishHandler, updateDishHandlerBodySchema } from "./update";
+import { updateDishHandler } from "./update";
 
 export const dishesRouter = Router();
 
-dishesRouter.post(
-  "/",
-  bodyValidatorMiddleware(createDishHandlerBodySchema),
-  createDishHandler
-);
+dishesRouter.post("/", multerFileUpload.single("image"), createDishHandler);
 
 dishesRouter.get("/", getAllDishesHandler);
 
 dishesRouter.put(
   "/:dishId",
-  bodyValidatorMiddleware(updateDishHandlerBodySchema),
+  multerFileUpload.single("image"),
   updateDishHandler
 );
 

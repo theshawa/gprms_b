@@ -1,3 +1,4 @@
+import { deleteAssetFromCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
@@ -28,6 +29,10 @@ export const deleteDiningAreaHandler: RequestHandler<{
       StatusCodes.CONFLICT,
       "Dining Area cannot be deleted because it has associated dining tables"
     );
+  }
+
+  if (currentDiningArea.image) {
+    await deleteAssetFromCloudinary(currentDiningArea.image);
   }
 
   await prisma.diningArea.delete({

@@ -1,7 +1,9 @@
 import { exceptionHandlerMiddleware } from "@/middlewares/exception-handler";
 import { router } from "@/routes/_router";
 
+import { Config } from "@/config";
 import { Logger } from "@/lib/logger";
+import { v2 as cloudinary } from "cloudinary";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -19,7 +21,7 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(router);
@@ -53,6 +55,12 @@ import { connectRedisStorage, disconnectRedisStorage } from "@/redis/storage";
     );
   });
 })();
+
+cloudinary.config({
+  cloud_name: Config.CLOUDINARY_CLOUD_NAME,
+  api_key: Config.CLOUDINARY_API_KEY,
+  api_secret: Config.CLOUDINARY_API_SECRET,
+});
 
 import "./socket/server";
 

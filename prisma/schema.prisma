@@ -80,6 +80,8 @@ model DiningArea {
 
     diningTables    DiningTable[]
     assignedWaiters WaiterAssignment[]
+
+    image String
 }
 
 model DiningTable {
@@ -147,6 +149,8 @@ model Dish {
     description String
 
     price Float @default(0.0)
+
+    image String
 
     ingredients DishIngredient[]
     menuItems   MenuItem[]

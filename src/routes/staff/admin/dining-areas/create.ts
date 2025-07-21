@@ -1,3 +1,4 @@
+import { uploadAssetToCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { DiningArea } from "@prisma/client";
@@ -13,11 +14,28 @@ export const createDiningAreaHandlerBodySchema = z.object({
 export const createDiningAreaHandler: RequestHandler<
   {},
   DiningArea,
-  z.infer<typeof createDiningAreaHandlerBodySchema>
+  { data: string }
 > = async (req, res) => {
+  const {
+    success,
+    data: payload,
+    error,
+  } = createDiningAreaHandlerBodySchema.safeParse(JSON.parse(req.body.data));
+  if (!success) {
+    const errorMessages = error.issues.map((issue) => issue.message);
+    throw new Exception(
+      StatusCodes.BAD_REQUEST,
+      `Invalid request body: ${errorMessages.join(", ")}`
+    );
+  }
+
+  if (!req.file) {
+    throw new Exception(StatusCodes.BAD_REQUEST, "Image file is required");
+  }
+
   const currentDiningArea = await prisma.diningArea.findFirst({
     where: {
-      name: req.body.name.toUpperCase().trim(),
+      name: payload.name.toUpperCase().trim(),
     },
   });
 
@@ -28,11 +46,23 @@ export const createDiningAreaHandler: RequestHandler<
     );
   }
 
-  const diningArea = await prisma.diningArea.create({
+  let diningArea = await prisma.diningArea.create({
     data: {
-      name: req.body.name.toUpperCase().trim(),
-      description: req.body.description.trim(),
+      name: payload.name.toUpperCase().trim(),
+      description: payload.description.trim(),
+      image: "",
     },
+  });
+
+  const imageUploadResult = await uploadAssetToCloudinary(
+    req.file,
+    "dining-areas",
+    diningArea.id.toString()
+  );
+
+  diningArea = await prisma.diningArea.update({
+    where: { id: diningArea.id },
+    data: { image: imageUploadResult.public_id },
   });
 
   res.status(StatusCodes.CREATED).json(diningArea);

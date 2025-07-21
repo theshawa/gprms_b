@@ -1,3 +1,4 @@
+import { uploadAssetToCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { publishEvent } from "@/redis/events/publisher";
@@ -14,28 +15,59 @@ export const updateDiningAreaHandlerBodySchema = z.object({
 export const updateDiningAreaHandler: RequestHandler<
   { id: string },
   DiningArea,
-  z.infer<typeof updateDiningAreaHandlerBodySchema>
+  { data: string }
 > = async (req, res) => {
-  const currentDiningArea = await prisma.diningArea.findFirst({
+  const {
+    success,
+    data: payload,
+    error,
+  } = updateDiningAreaHandlerBodySchema.safeParse(JSON.parse(req.body.data));
+  if (!success) {
+    const errorMessages = error.issues.map((issue) => issue.message);
+    throw new Exception(
+      StatusCodes.BAD_REQUEST,
+      `Invalid request body: ${errorMessages.join(", ")}`
+    );
+  }
+
+  const currentDiningArea = await prisma.diningArea.findUnique({
+    where: { id: parseInt(req.params.id) },
+  });
+  if (!currentDiningArea) {
+    throw new Exception(
+      StatusCodes.NOT_FOUND,
+      `Dining area with ID ${req.params.id} not found`
+    );
+  }
+
+  const alreadyDiningArea = await prisma.diningArea.findFirst({
     where: {
-      name: req.body.name.toUpperCase().trim(),
+      name: payload.name.toUpperCase().trim(),
       id: {
         not: parseInt(req.params.id),
       },
     },
   });
 
-  if (currentDiningArea) {
+  if (alreadyDiningArea) {
     throw new Exception(
       StatusCodes.CONFLICT,
       "Another dining area with this name already exists"
     );
   }
 
+  if (req.file) {
+    await uploadAssetToCloudinary(
+      req.file,
+      "dining-areas",
+      currentDiningArea.id.toString()
+    );
+  }
+
   const diningArea = await prisma.diningArea.update({
     data: {
-      name: req.body.name.toUpperCase().trim(),
-      description: req.body.description.trim(),
+      name: payload.name.toUpperCase().trim(),
+      description: payload.description.trim(),
     },
     where: {
       id: parseInt(req.params.id),

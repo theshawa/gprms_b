@@ -1,13 +1,11 @@
 import { bodyValidatorMiddleware } from "@/middlewares/body-validator";
+import { multerFileUpload } from "@/multer";
 import { Router } from "express";
 import {
   assignWaiterHandler,
   assignWaiterHandlerBodySchema,
 } from "./assign-waiter";
-import {
-  createDiningAreaHandler,
-  createDiningAreaHandlerBodySchema,
-} from "./create";
+import { createDiningAreaHandler } from "./create";
 import { deleteDiningAreaHandler } from "./delete";
 import { getDiningAreasHandler } from "./get-all";
 import { getAssignedWaitersHandler } from "./get-assigned-waiters";
@@ -15,16 +13,13 @@ import {
   unAssignWaiterHandler,
   unAssignWaiterHandlerBodySchema,
 } from "./unassign-waiter";
-import {
-  updateDiningAreaHandler,
-  updateDiningAreaHandlerBodySchema,
-} from "./update";
+import { updateDiningAreaHandler } from "./update";
 
 export const diningAreasRouter = Router();
 
 diningAreasRouter.post(
   "/",
-  bodyValidatorMiddleware(createDiningAreaHandlerBodySchema),
+  multerFileUpload.single("image"),
   createDiningAreaHandler
 );
 
@@ -32,7 +27,7 @@ diningAreasRouter.get("/", getDiningAreasHandler);
 
 diningAreasRouter.put(
   "/:id",
-  bodyValidatorMiddleware(updateDiningAreaHandlerBodySchema),
+  multerFileUpload.single("image"),
   updateDiningAreaHandler
 );
 

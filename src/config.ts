@@ -11,4 +11,11 @@ export class Config {
   static ACCESS_TOKEN_EXPIRY: string = "1h";
 
   static REFRESH_TOKEN_EXPIRY: string = "7d";
+
+  static CLOUDINARY_CLOUD_NAME: string =
+    process.env.CLOUDINARY_CLOUD_NAME || "";
+  static CLOUDINARY_API_KEY: string = process.env.CLOUDINARY_API_KEY || "";
+  static CLOUDINARY_API_SECRET: string =
+    process.env.CLOUDINARY_API_SECRET || "";
+  static CLOUDINARY_URL: string = process.env.CLOUDINARY_URL || "";
 }

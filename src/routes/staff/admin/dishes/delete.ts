@@ -1,3 +1,4 @@
+import { deleteAssetFromCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { RequestHandler } from "express";
@@ -17,6 +18,10 @@ export const deleteDishHandler: RequestHandler<{ dishId: string }> = async (
       StatusCodes.NOT_FOUND,
       "Dish with this ID does not exist"
     );
+  }
+
+  if (currentDish.image) {
+    await deleteAssetFromCloudinary(currentDish.image);
   }
 
   await prisma.dish.delete({
