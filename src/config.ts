@@ -18,4 +18,8 @@ export class Config {
   static CLOUDINARY_API_SECRET: string =
     process.env.CLOUDINARY_API_SECRET || "";
   static CLOUDINARY_URL: string = process.env.CLOUDINARY_URL || "";
+
+  static TWILIO_ACCOUNT_SID: string = process.env.TWILIO_ACCOUNT_SID || "";
+  static TWILIO_AUTH_TOKEN: string = process.env.TWILIO_AUTH_TOKEN || "";
+  static TWILIO_PHONE_NUMBER: string = process.env.TWILIO_PHONE_NUMBER || ""; // Default Twilio number
 }

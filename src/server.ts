@@ -34,6 +34,9 @@ const PORT = process.env.PORT || 3000;
 
 export const expressServer = createServer(app);
 
+import "./socket/server";
+import "./twilio";
+
 import {
   connectRedisEventsConsumer,
   disconnectRedisEventsConsumer,
@@ -61,8 +64,6 @@ cloudinary.config({
   api_key: Config.CLOUDINARY_API_KEY,
   api_secret: Config.CLOUDINARY_API_SECRET,
 });
-
-import "./socket/server";
 
 const gracefulShutdown = async () => {
   disconnectRedisEventsConsumer();
