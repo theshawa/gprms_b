@@ -1,25 +1,49 @@
 export class Config {
-  static INITIAL_ADMIN_PASSWORD: string =
-    process.env.INITIAL_ADMIN_PASSWORD || "iambatman";
+  static INITIAL_ADMIN_PASSWORD(): string {
+    return process.env.INITIAL_ADMIN_PASSWORD || "iambatman";
+  }
 
-  static REFRESH_TOKEN_SECRET: string =
-    process.env.REFRESH_TOKEN_SECRET || "supermaniscool";
+  static REFRESH_TOKEN_SECRET(): string {
+    return process.env.REFRESH_TOKEN_SECRET || "supermaniscool";
+  }
 
-  static ACCESS_TOKEN_SECRET: string =
-    process.env.ACCESS_TOKEN_SECRET || "hulksmash";
+  static ACCESS_TOKEN_SECRET(): string {
+    return process.env.ACCESS_TOKEN_SECRET || "hulksmash";
+  }
 
-  static ACCESS_TOKEN_EXPIRY: string = "1h";
+  static ACCESS_TOKEN_EXPIRY(): string {
+    return "1h";
+  }
 
-  static REFRESH_TOKEN_EXPIRY: string = "7d";
+  static REFRESH_TOKEN_EXPIRY(): string {
+    return "7d";
+  }
 
-  static CLOUDINARY_CLOUD_NAME: string =
-    process.env.CLOUDINARY_CLOUD_NAME || "";
-  static CLOUDINARY_API_KEY: string = process.env.CLOUDINARY_API_KEY || "";
-  static CLOUDINARY_API_SECRET: string =
-    process.env.CLOUDINARY_API_SECRET || "";
-  static CLOUDINARY_URL: string = process.env.CLOUDINARY_URL || "";
+  static CLOUDINARY_CLOUD_NAME(): string {
+    return process.env.CLOUDINARY_CLOUD_NAME || "";
+  }
 
-  static TWILIO_ACCOUNT_SID: string = process.env.TWILIO_ACCOUNT_SID || "";
-  static TWILIO_AUTH_TOKEN: string = process.env.TWILIO_AUTH_TOKEN || "";
-  static TWILIO_PHONE_NUMBER: string = process.env.TWILIO_PHONE_NUMBER || ""; // Default Twilio number
+  static CLOUDINARY_API_KEY(): string {
+    return process.env.CLOUDINARY_API_KEY || "";
+  }
+
+  static CLOUDINARY_API_SECRET(): string {
+    return process.env.CLOUDINARY_API_SECRET || "";
+  }
+
+  static CLOUDINARY_URL(): string {
+    return process.env.CLOUDINARY_URL || "";
+  }
+
+  static TWILIO_ACCOUNT_SID(): string {
+    return process.env.TWILIO_ACCOUNT_SID || "";
+  }
+
+  static TWILIO_AUTH_TOKEN(): string {
+    return process.env.TWILIO_AUTH_TOKEN || "";
+  }
+
+  static TWILIO_PHONE_NUMBER(): string {
+    return process.env.TWILIO_PHONE_NUMBER || "";
+  }
 }

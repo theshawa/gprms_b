@@ -25,3 +25,38 @@ export const connectRedisStorage = async () => {
 export const disconnectRedisStorage = async () => {
   await redisStorage.quit();
 };
+
+export const saveToCache = async (key: string, value: any, ttl: number) => {
+  try {
+    await redisStorage.set(key, JSON.stringify(value), {
+      EX: ttl,
+    });
+    Logger.log("REDIS STORAGE", `Saved ${key} to cache`);
+  } catch (error) {
+    Logger.log("REDIS STORAGE", `Failed to save ${key} to cache:`, error);
+  }
+};
+
+export const getFromCache = async <T>(key: string) => {
+  try {
+    const value = await redisStorage.get(key);
+    if (value) {
+      Logger.log("REDIS STORAGE", `Retrieved ${key} from cache`);
+      return JSON.parse(value) as T;
+    }
+    Logger.log("REDIS STORAGE", `${key} not found in cache`);
+    return null;
+  } catch (error) {
+    Logger.log("REDIS STORAGE", `Failed to retrieve ${key} from cache:`, error);
+    return null;
+  }
+};
+
+export const deleteFromCache = async (key: string) => {
+  try {
+    await redisStorage.del(key);
+    Logger.log("REDIS STORAGE", `Deleted ${key} from cache`);
+  } catch (error) {
+    Logger.log("REDIS STORAGE", `Failed to delete ${key} from cache:`, error);
+  }
+};

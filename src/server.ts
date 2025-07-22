@@ -1,9 +1,7 @@
 import { exceptionHandlerMiddleware } from "@/middlewares/exception-handler";
 import { router } from "@/routes/_router";
 
-import { Config } from "@/config";
 import { Logger } from "@/lib/logger";
-import { v2 as cloudinary } from "cloudinary";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -35,7 +33,6 @@ const PORT = process.env.PORT || 3000;
 export const expressServer = createServer(app);
 
 import "./socket/server";
-import "./twilio";
 
 import {
   connectRedisEventsConsumer,
@@ -46,10 +43,13 @@ import {
   disconnectRedisEventsPublisher,
 } from "@/redis/events/publisher";
 import { connectRedisStorage, disconnectRedisStorage } from "@/redis/storage";
+import { initCloudinary } from "./cloudinary";
 (async () => {
   await connectRedisStorage();
   await connectRedisEventsPublisher();
   await connectRedisEventsConsumer();
+
+  initCloudinary();
 
   expressServer.listen(PORT, () => {
     Logger.log(
@@ -58,12 +58,6 @@ import { connectRedisStorage, disconnectRedisStorage } from "@/redis/storage";
     );
   });
 })();
-
-cloudinary.config({
-  cloud_name: Config.CLOUDINARY_CLOUD_NAME,
-  api_key: Config.CLOUDINARY_API_KEY,
-  api_secret: Config.CLOUDINARY_API_SECRET,
-});
 
 const gracefulShutdown = async () => {
   disconnectRedisEventsConsumer();

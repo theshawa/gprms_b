@@ -1,12 +1,21 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { Config } from "./config";
+import { Logger } from "./lib/logger";
 
-cloudinary.config({
-  cloud_name: Config.CLOUDINARY_CLOUD_NAME,
-  api_key: Config.CLOUDINARY_API_KEY,
-  api_secret: Config.CLOUDINARY_API_SECRET,
-});
+export const initCloudinary = () => {
+  cloudinary.config({
+    cloud_name: Config.CLOUDINARY_CLOUD_NAME(),
+    api_key: Config.CLOUDINARY_API_KEY(),
+    api_secret: Config.CLOUDINARY_API_SECRET(),
+  });
+
+  Logger.log(
+    "CLOUDINARY",
+    "Cloudinary initialized with cloud name:",
+    Config.CLOUDINARY_CLOUD_NAME()
+  );
+};
 
 export const uploadAssetToCloudinary = async (
   file: Express.Multer.File,

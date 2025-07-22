@@ -47,8 +47,8 @@ model StaffActivityLog {
 model Customer {
     id Int @id @default(autoincrement())
 
-    name  String
-    phone String @unique
+    name        String
+    phoneNumber String @unique
 
     loyaltyPoints Int @default(0)
 
@@ -171,14 +171,10 @@ model DishIngredient {
 }
 
 enum Meal {
-    Breakfast
     Brunch
     Lunch
     HighTea
     Dinner
-    Snack
-    Supper
-    LateNight
 }
 
 model Menu {

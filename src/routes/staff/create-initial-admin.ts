@@ -14,7 +14,7 @@ export const createInitialAdminHandler: RequestHandler<
 > = async (req, res) => {
   const givenPassword = req.query.password as string;
 
-  if (givenPassword !== Config.INITIAL_ADMIN_PASSWORD) {
+  if (givenPassword !== Config.INITIAL_ADMIN_PASSWORD()) {
     throw new Exception(StatusCodes.UNAUTHORIZED, "invalid password");
   }
 
