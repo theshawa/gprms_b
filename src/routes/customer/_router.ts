@@ -1,6 +1,5 @@
 import { bodyValidatorMiddleware } from "@/middlewares/body-validator";
 import { Router } from "express";
-import { dineinRouter } from "./dine-in/_router";
 import { loginHandler, loginHandlerBodySchema } from "./login";
 import { customerLogoutHandler } from "./logout";
 import { customerRefreshAuthHandler } from "./refresh-auth";
@@ -26,5 +25,3 @@ customerRouter.post(
 customerRouter.post("/refresh-auth", customerRefreshAuthHandler);
 
 customerRouter.post("/logout", customerLogoutHandler);
-
-customerRouter.use("/dine-in", dineinRouter);

@@ -60,3 +60,12 @@ export const deleteFromCache = async (key: string) => {
     Logger.log("REDIS STORAGE", `Failed to delete ${key} from cache:`, error);
   }
 };
+
+export const clearCache = async () => {
+  try {
+    await redisStorage.flushDb();
+    Logger.log("REDIS STORAGE", "Cache cleared successfully");
+  } catch (error) {
+    Logger.log("REDIS STORAGE", "Failed to clear cache:", error);
+  }
+};

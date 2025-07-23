@@ -3,6 +3,7 @@ import {
   subscribeToEvent,
   unsubscribeFromEvent,
 } from "@/redis/events/consumer";
+import { getFromCache } from "@/redis/storage";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
 import { StaffMember, StaffRole } from "@prisma/client";
@@ -15,7 +16,7 @@ export const waiterNamespace = io.of("/waiter");
 
 waiterNamespace.on(
   "connection",
-  (
+  async (
     socket: Socket<
       WaiterListenEventsMap,
       WaiterEmitEventsMap,
@@ -38,10 +39,17 @@ waiterNamespace.on(
 
     socket.on("getDiningTableStatus", async (tableId: number) => {
       try {
-        const random = Math.random() < 0.5; // Simulate a random status
-        socket.emit("diningTableStatus", tableId, random);
+        const cachedSession = await getFromCache<{
+          id: string;
+          status: string;
+        }>("table-session:" + tableId.toString());
+        if (!cachedSession) {
+          socket.emit("diningTableStatus", tableId, null);
+          return;
+        }
+        socket.emit("diningTableStatus", tableId, cachedSession.status);
       } catch (error) {
-        socket.emit("diningTableStatusError", error);
+        socket.emit("diningTableStatusError", tableId, error);
       }
     });
 
@@ -84,6 +92,8 @@ waiterNamespace.on(
     };
 
     const handleOrderStarted = async (diningTableId: number) => {
+      console.log("Order started for dining table:", diningTableId);
+
       try {
         const diningTable = await prisma.diningTable.findUnique({
           where: { id: diningTableId },
@@ -97,13 +107,41 @@ waiterNamespace.on(
           return;
         }
 
-        socket.emit("customerWaitingAtDiningTable", {
-          tableId: diningTableId,
-          diningAreaId: diningTable.diningArea.id,
-        });
+        socket.emit("diningTableStatus", diningTableId, "waiting-for-waiter");
       } catch (error) {
         console.error("Error handling order started:", error);
       }
+    };
+
+    const handleOrderEnded = async (diningTableId: number) => {
+      console.log("Order ended for dining table:", diningTableId);
+
+      try {
+        const diningTable = await prisma.diningTable.findUnique({
+          where: { id: diningTableId },
+          include: {
+            diningArea: true,
+          },
+        });
+
+        if (!diningTable) {
+          console.error(`Dining table with ID ${diningTableId} not found`);
+          return;
+        }
+
+        socket.emit("diningTableStatus", diningTableId, null);
+      } catch (error) {
+        console.error("Error handling order ended:", error);
+      }
+    };
+
+    const handleWaiterAcceptTable = async (d: {
+      waiterId: number;
+      tableId: number;
+    }) => {
+      console.log("Waiter accepted table:", d.tableId);
+
+      socket.emit("diningTableStatus", d.tableId, "order-ongoing");
     };
 
     const eventBusListeners = [
@@ -114,16 +152,18 @@ waiterNamespace.on(
       ["dining-table-deleted-in-dining-area", handleDiningAreaChange],
       ["dining-table-updated-in-dining-area", handleDiningAreaChange],
       ["order-started", handleOrderStarted],
+      ["order-ended", handleOrderEnded],
+      ["waiter-accepted-table", handleWaiterAcceptTable],
     ] as const;
 
-    eventBusListeners.forEach(([event, handler]) => {
-      subscribeToEvent(event, handler);
-    });
+    for (const [event, handler] of eventBusListeners) {
+      await subscribeToEvent(event, handler);
+    }
 
-    socket.on("disconnect", () => {
-      eventBusListeners.forEach(([event]) => {
-        unsubscribeFromEvent(event);
-      });
+    socket.on("disconnect", async () => {
+      for (const [event] of eventBusListeners) {
+        await unsubscribeFromEvent(event);
+      }
 
       socket.removeAllListeners();
     });

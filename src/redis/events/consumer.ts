@@ -27,11 +27,15 @@ export const subscribeToEvent = async (
   event: string,
   handler: (payload: any) => void
 ) => {
+  console.log(`Subscribing to event: ${event}`);
+
   await consumer.subscribe(event, (message) => {
     try {
       const payload = JSON.parse(message);
       handler(payload);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
 };
 

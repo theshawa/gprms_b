@@ -10,8 +10,8 @@ export interface WaiterListenEventsMap {
 export interface WaiterEmitEventsMap {
   diningTables: (tables: DiningTable[]) => void; // Replace 'any[]' with
   diningTablesError: (error: any) => void;
-  diningTableStatus: (talbeId: number, status: boolean) => void;
-  diningTableStatusError: (error: any) => void;
+  diningTableStatus: (talbeId: number, status: string | null) => void;
+  diningTableStatusError: (talbeId: number, error: any) => void;
   ongoingOrdersCount: (count: number) => void;
   ongoingOrdersCountError: (error: any) => void;
   customerWaitingAtDiningTable: (data: {

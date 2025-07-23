@@ -42,12 +42,18 @@ import {
   connectRedisEventsPublisher,
   disconnectRedisEventsPublisher,
 } from "@/redis/events/publisher";
-import { connectRedisStorage, disconnectRedisStorage } from "@/redis/storage";
+import {
+  clearCache,
+  connectRedisStorage,
+  disconnectRedisStorage,
+} from "@/redis/storage";
 import { initCloudinary } from "./cloudinary";
 (async () => {
   await connectRedisStorage();
   await connectRedisEventsPublisher();
   await connectRedisEventsConsumer();
+
+  await clearCache();
 
   initCloudinary();
 
