@@ -8,16 +8,7 @@ import z from "zod";
 export const createMenuHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
   description: z.string().trim(),
-  meal: z.enum([
-    "Breakfast",
-    "Brunch",
-    "Lunch",
-    "HighTea",
-    "Dinner",
-    "Snack",
-    "Supper",
-    "LateNight",
-  ]),
+  meal: z.enum(["Brunch", "Lunch", "HighTea", "Dinner"]),
   menuSections: z
     .array(
       z.object({
