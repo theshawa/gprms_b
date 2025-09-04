@@ -3,6 +3,7 @@ import { Router } from "express";
 import { loginHandler, loginHandlerBodySchema } from "./login";
 import { customerLogoutHandler } from "./logout";
 import { customerRefreshAuthHandler } from "./refresh-auth";
+import { takeawayRouter } from "./takeaway/_router";
 import {
   verifyLoginCodeBodySchema,
   verifyLoginCodeHandler,
@@ -25,3 +26,5 @@ customerRouter.post(
 customerRouter.post("/refresh-auth", customerRefreshAuthHandler);
 
 customerRouter.post("/logout", customerLogoutHandler);
+
+customerRouter.use("/takeaway", takeawayRouter);
