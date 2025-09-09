@@ -52,6 +52,8 @@ model Customer {
 
     loyaltyPoints Int @default(0)
 
+    reservations Reservation[]
+
     createdAt DateTime @default(now())
 }
 
@@ -215,4 +217,36 @@ model MenuItem {
     position Int
 
     @@unique([menuSectionId, dishId])
+}
+
+enum ReservationStatus {
+    Pending
+    Confirmed
+    Cancelled
+    Completed
+}
+
+
+model Reservation {
+    id Int @id @default(autoincrement())
+
+    reservationCode String @unique @default(cuid())
+
+    customerId Int
+    customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    phoneNumber String
+
+    diningAreaId Int
+    // diningArea      DiningArea? @relation(fields: [diningAreaId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    
+    reservationDate DateTime
+    guestCount     Int
+    meal          Meal
+    status        ReservationStatus @default(Pending)
+
+    specialRequests String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
 }
