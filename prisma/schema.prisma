@@ -31,6 +31,7 @@ model StaffMember {
     role                StaffRole
     activities          StaffActivityLog[]
     assignedDiningAreas WaiterAssignment[]
+    handledReservations Reservation[]
 }
 
 model StaffActivityLog {
@@ -82,6 +83,7 @@ model DiningArea {
 
     diningTables    DiningTable[]
     assignedWaiters WaiterAssignment[]
+    reservations    Reservation[]
 
     image String
 }
@@ -95,6 +97,8 @@ model DiningTable {
     maxSeats     Int
 
     diningArea DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    reservations Reservation[]
 
     @@unique([name, diningAreaId])
 }
@@ -226,6 +230,22 @@ enum ReservationStatus {
     Completed
 }
 
+enum OccasionType {
+    Birthday
+    Anniversary
+    BusinessMeeting
+    Celebration
+    Casual
+    Other
+}
+
+enum SeatingPreference {
+    Window
+    Terrace
+    Indoor
+    Private
+    NoPreference
+}
 
 model Reservation {
     id Int @id @default(autoincrement())
@@ -233,20 +253,42 @@ model Reservation {
     reservationCode String @unique @default(cuid())
 
     customerId Int
-    customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     phoneNumber String
 
-    diningAreaId Int
-    // diningArea      DiningArea? @relation(fields: [diningAreaId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    
+    diningAreaId Int?
+    diningArea   DiningArea? @relation(fields: [diningAreaId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    diningTableId Int?
+    diningTable   DiningTable? @relation(fields: [diningTableId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
     reservationDate DateTime
-    guestCount     Int
-    meal          Meal
-    status        ReservationStatus @default(Pending)
+    timeSlot        String // e.g., "6:00 PM - 8:00 PM"
+    duration        Int               @default(120) // Duration in minutes
+    guestCount      Int
+    meal            Meal
+    status          ReservationStatus @default(Pending)
+
+    occasionType      OccasionType?     @default(Casual)
+    seatingPreference SeatingPreference @default(NoPreference)
 
     specialRequests String?
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
 
+    // Staff handling
+    handledByStaffId Int?
+    handledByStaff   StaffMember? @relation(fields: [handledByStaffId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    staffNotes String?
+
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    confirmedAt DateTime?
+    cancelledAt DateTime?
+
+    // Indexes for performance
+    @@index([reservationDate, timeSlot])
+    @@index([customerId])
+    @@index([diningAreaId])
+    @@index([status])
 }
