@@ -234,6 +234,14 @@ model TakeAwayOrderItem {
     @@unique([takeAwayOrderId, dishId])
 }
 
+enum TakeAwayOrderStatusType {
+    New
+    Preparing
+    Prepared
+    Completed
+    Rejected
+}
+
 model TakeAwayOrder {
     id Int @id @default(autoincrement())
 
@@ -244,7 +252,7 @@ model TakeAwayOrder {
 
     totalAmount Float @default(0.0)
 
-    status OrderStatusType @default(New)
+    status TakeAwayOrderStatusType @default(New)
 
     items TakeAwayOrderItem[]
 
