@@ -1,4 +1,5 @@
-import { TakeAwayOrder, TakeAwayOrderStatusType } from "@prisma/client";
+import { StaffMember, TakeAwayOrder, TakeAwayOrderStatusType } from "@prisma/client";
+import { Socket } from "socket.io";
 
 export interface CashierListenEventsMap {
   getTakeAwayOrders: (status: TakeAwayOrderStatusType[]) => void;
@@ -7,4 +8,15 @@ export interface CashierListenEventsMap {
 
 export interface CashierEmitEventsMap {
   takeAwayOrdersResults: (orders: TakeAwayOrder[]) => void; // Replace 'any[]' with
+  newTakeAwayOrder: (order: TakeAwayOrder) => void;
+  takeAwayOrderPrepared: (orderId: number) => void;
 }
+
+export type CashierSocket = Socket<
+  CashierListenEventsMap,
+  CashierEmitEventsMap,
+  {},
+  {
+    user: StaffMember;
+  }
+>;

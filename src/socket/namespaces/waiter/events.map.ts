@@ -1,4 +1,4 @@
-import { DiningTable } from "@prisma/client";
+import { DiningTable, StaffMember } from "@prisma/client";
 
 export interface WaiterListenEventsMap {
   getDiningTables: () => void;
@@ -19,3 +19,10 @@ export interface WaiterEmitEventsMap {
     diningAreaId: number; // Assuming diningAreaId is the same as diningTableId for this example
   }) => void;
 }
+
+export type WaiterSocket = import("socket.io").Socket<
+  WaiterListenEventsMap,
+  WaiterEmitEventsMap,
+  {},
+  { user: StaffMember }
+>;

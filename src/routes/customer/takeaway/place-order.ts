@@ -1,7 +1,10 @@
+import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
+import { publishEvent } from "@/redis/events/publisher";
 import { sendSMS } from "@/twilio";
 import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
+import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
 export const placeOrderHandlerBodySchema = z.object({
@@ -31,10 +34,7 @@ export const placeOrderHandler: RequestHandler<
       customerName,
       customerPhone,
       notes,
-      totalAmount: items.reduce(
-        (acc, item) => acc + item.priceAtOrder * item.quantity,
-        0
-      ),
+      totalAmount: items.reduce((acc, item) => acc + item.priceAtOrder * item.quantity, 0),
       items: {
         create: items.map((item) => ({
           dishId: item.dishId,
@@ -55,9 +55,7 @@ export const placeOrderHandler: RequestHandler<
   const itemsText = takeAwayOrder.items
     .map(
       (item) =>
-        `- ${
-          item.quantity
-        } of ${item.dish.name.toUpperCase()}: ${formatCurrency(
+        `- ${item.quantity} of ${item.dish.name.toUpperCase()}: ${formatCurrency(
           item.priceAtOrder
         )} each`
     )
@@ -67,15 +65,16 @@ export const placeOrderHandler: RequestHandler<
     to: customerPhone,
     body: `Your take-away order has been placed successfully!\n\nOrder ID: ${
       takeAwayOrder.id
-    }\nTotal Amount: ${formatCurrency(
-      takeAwayOrder.totalAmount
-    )}\n\nItems:\n${itemsText}${
+    }\nTotal Amount: ${formatCurrency(takeAwayOrder.totalAmount)}\n\nItems:\n${itemsText}${
       notes ? `\n\nNotes:\n${notes}` : ""
     }\n\nThank you for ordering with RestoEase!`,
     whatsapp: true,
   });
 
   // TODO: Notify kitchen dashboard, Cashier dashboard
+  await publishEvent("takeaway-order-placed", { orderId: takeAwayOrder.id });
 
-  res.json(takeAwayOrder);
+  throw new Exception(StatusCodes.BAD_GATEWAY, "Not implemented");
+
+  // res.json(takeAwayOrder);
 };
