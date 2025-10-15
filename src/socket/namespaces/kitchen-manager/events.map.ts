@@ -2,13 +2,15 @@ import { StaffMember, TakeAwayOrder, TakeAwayOrderStatusType } from "@prisma/cli
 import { Socket } from "socket.io";
 
 export interface KitchenManagerListenEventsMap {
-  getNewTakeAwayOrders: (status: TakeAwayOrderStatusType[]) => void;
+  getTakeAwayOrders: (status: TakeAwayOrderStatusType[]) => void;
   // Add other events specific to the cashier namespace here
 }
 
 export interface KitchenManagerEmitEventsMap {
-  newTakeAwayOrdersResults: (orders: TakeAwayOrder[]) => void; // Replace 'any[]' with
+  takeAwayOrdersResults: (orders: TakeAwayOrder[]) => void; // Replace 'any[]' with
+  takeAwayOrdersError: (err: any) => void; // Replace 'any[]' with
   newTakeAwayOrder: (order: TakeAwayOrder) => void;
+  takeAwayOrderCancelled: (order: TakeAwayOrder) => void;
 }
 
 export type KitchenManagerSocket = Socket<

@@ -10,6 +10,7 @@ export interface CashierEmitEventsMap {
   takeAwayOrdersResults: (orders: TakeAwayOrder[]) => void; // Replace 'any[]' with
   takeAwayOrdersResultsError: (err: any) => void;
   newTakeAwayOrder: (order: TakeAwayOrder) => void;
+  takeAwayOrderPreparing: (orderId: TakeAwayOrder) => void;
   takeAwayOrderPrepared: (orderId: TakeAwayOrder) => void;
 }
 

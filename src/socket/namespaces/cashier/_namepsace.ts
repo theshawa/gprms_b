@@ -1,4 +1,3 @@
-import { Logger } from "@/lib/logger";
 import { prisma } from "@/prisma";
 import { subscribeToEvent, unsubscribeFromEvent } from "@/redis/events/consumer";
 import { io } from "@/socket/server";
@@ -11,7 +10,6 @@ export const cashierNamespace = io.of("/cashier");
 cashierNamespace.on("connection", async (socket: CashierSocket) => {
   // socket event listeners
   socket.on("getTakeAwayOrders", async () => {
-    Logger.log("getTakeAwayOrders");
     try {
       const takeAwayOrders = await prisma.takeAwayOrder.findMany({
         orderBy: {
@@ -49,6 +47,25 @@ cashierNamespace.on("connection", async (socket: CashierSocket) => {
 
         if (takeAwayOrder) {
           socket.emit("newTakeAwayOrder", takeAwayOrder);
+        }
+      },
+    ],
+    [
+      "takeaway-order-preparing",
+      async ({ orderId }: { orderId: number }) => {
+        const takeAwayOrder = await prisma.takeAwayOrder.findFirst({
+          where: { id: orderId, status: TakeAwayOrderStatusType.Preparing },
+          include: {
+            items: {
+              include: {
+                dish: true,
+              },
+            },
+          },
+        });
+
+        if (takeAwayOrder) {
+          socket.emit("takeAwayOrderPreparing", takeAwayOrder);
         }
       },
     ],

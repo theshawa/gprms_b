@@ -9,23 +9,24 @@ export const kitchenManagerNamespace = io.of("/kitchen-manager");
 
 kitchenManagerNamespace.on("connection", async (socket: KitchenManagerSocket) => {
   // socket event listeners
-  socket.on("getNewTakeAwayOrders", async () => {
-    const takeAwayOrders = await prisma.takeAwayOrder.findMany({
-      where: {
-        status: TakeAwayOrderStatusType.New,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        items: {
-          include: {
-            dish: true,
+  socket.on("getTakeAwayOrders", async () => {
+    try {
+      const takeAwayOrders = await prisma.takeAwayOrder.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          items: {
+            include: {
+              dish: true,
+            },
           },
         },
-      },
-    });
-    socket.emit("newTakeAwayOrdersResults", takeAwayOrders);
+      });
+      socket.emit("takeAwayOrdersResults", takeAwayOrders);
+    } catch (error) {
+      socket.emit("takeAwayOrdersError", error);
+    }
   });
 
   // event bus listeners
@@ -46,6 +47,25 @@ kitchenManagerNamespace.on("connection", async (socket: KitchenManagerSocket) =>
 
         if (takeAwayOrder) {
           socket.emit("newTakeAwayOrder", takeAwayOrder);
+        }
+      },
+    ],
+    [
+      "takeaway-order-cancelled",
+      async ({ orderId }: { orderId: number }) => {
+        const takeAwayOrder = await prisma.takeAwayOrder.findFirst({
+          where: { id: orderId, status: TakeAwayOrderStatusType.Cancelled },
+          include: {
+            items: {
+              include: {
+                dish: true,
+              },
+            },
+          },
+        });
+
+        if (takeAwayOrder) {
+          socket.emit("takeAwayOrderCancelled", takeAwayOrder);
         }
       },
     ],

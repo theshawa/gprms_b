@@ -1,10 +1,8 @@
-import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
 import { publishEvent } from "@/redis/events/publisher";
 import { sendSMS } from "@/twilio";
 import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
-import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
 export const placeOrderHandlerBodySchema = z.object({
@@ -74,7 +72,5 @@ export const placeOrderHandler: RequestHandler<
   // TODO: Notify kitchen dashboard, Cashier dashboard
   await publishEvent("takeaway-order-placed", { orderId: takeAwayOrder.id });
 
-  throw new Exception(StatusCodes.BAD_GATEWAY, "Not implemented");
-
-  // res.json(takeAwayOrder);
+  res.json(takeAwayOrder);
 };
