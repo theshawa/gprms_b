@@ -8,5 +8,7 @@ export const io = new Server(expressServer, {
 });
 
 import "./namespaces/admin/_namepsace";
+import "./namespaces/cashier/_namepsace";
 import "./namespaces/customer-dine-in/_namepsace";
+import "./namespaces/kitchen-manager/_namepsace";
 import "./namespaces/waiter/_namepsace";

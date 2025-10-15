@@ -15,20 +15,12 @@ export const connectRedisEventsConsumer = async () => {
       process.env.REDIS_URL
     );
   } catch (error) {
-    Logger.log(
-      "REDIS EVENTS CONSUMER",
-      "Redis Events Consumer connection failed:",
-      error
-    );
+    Logger.log("REDIS EVENTS CONSUMER", "Redis Events Consumer connection failed:", error);
   }
 };
 
-export const subscribeToEvent = async (
-  event: string,
-  handler: (payload: any) => void
-) => {
-  console.log(`Subscribing to event: ${event}`);
-
+export const subscribeToEvent = async (event: string, handler: (payload: any) => void) => {
+  Logger.log("REDIS EVENTS CONSUMER", `Subscribing to event: ${event}`);
   await consumer.subscribe(event, (message) => {
     try {
       const payload = JSON.parse(message);

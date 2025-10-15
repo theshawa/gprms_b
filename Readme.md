@@ -7,4 +7,13 @@
 ## Settings
 
 - Brunch, Lunch, High Tea, Dinner
--
+
+## What's There To Be Done
+
+- Dine-in process complete
+- Reservation
+- Take-away
+- Kitchen Dashboard
+- Waiter Dashboard
+- Customer Remaining Frontend
+- Cashier Dashboard

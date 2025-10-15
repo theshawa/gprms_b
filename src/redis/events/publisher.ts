@@ -15,16 +15,13 @@ export const connectRedisEventsPublisher = async () => {
       process.env.REDIS_URL
     );
   } catch (error) {
-    Logger.log(
-      "REDIS EVENTS PUBLISHER",
-      "Redis Events Publisher connection failed:",
-      error
-    );
+    Logger.log("REDIS EVENTS PUBLISHER", "Redis Events Publisher connection failed:", error);
   }
 };
 
 export const publishEvent = async (event: string, payload: any) => {
   const message = JSON.stringify(payload);
+  Logger.log("REDIS EVENTS PUBLISHER", `Publishing event: ${event}`, JSON.stringify(payload));
   await publisher.publish(event, message);
 };
 

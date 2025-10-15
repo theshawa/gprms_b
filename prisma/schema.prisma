@@ -158,8 +158,9 @@ model Dish {
 
     image String
 
-    ingredients DishIngredient[]
-    menuItems   MenuItem[]
+    ingredients       DishIngredient[]
+    menuItems         MenuItem[]
+    TakeAwayOrderItem TakeAwayOrderItem[]
 }
 
 model DishIngredient {
@@ -291,4 +292,45 @@ model Reservation {
     @@index([customerId])
     @@index([diningAreaId])
     @@index([status])
+}
+
+model TakeAwayOrderItem {
+    id Int @id @default(autoincrement())
+
+    takeAwayOrderId Int
+    takeAwayOrder   TakeAwayOrder @relation(fields: [takeAwayOrderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    dishId Int
+    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    quantity Int @default(1)
+
+    priceAtOrder Float
+
+    @@unique([takeAwayOrderId, dishId])
+}
+
+enum TakeAwayOrderStatusType {
+    New
+    Preparing
+    Prepared
+    Completed
+    Cancelled
+}
+
+model TakeAwayOrder {
+    id Int @id @default(autoincrement())
+
+    customerName  String
+    customerPhone String
+
+    notes String
+
+    totalAmount Float @default(0.0)
+
+    status TakeAwayOrderStatusType @default(New)
+
+    items TakeAwayOrderItem[]
+
+    createdAt DateTime @default(now())
 }
