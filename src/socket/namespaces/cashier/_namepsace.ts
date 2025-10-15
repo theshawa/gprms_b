@@ -1,3 +1,4 @@
+import { Logger } from "@/lib/logger";
 import { prisma } from "@/prisma";
 import { subscribeToEvent, unsubscribeFromEvent } from "@/redis/events/consumer";
 import { io } from "@/socket/server";
@@ -9,15 +10,10 @@ export const cashierNamespace = io.of("/cashier");
 
 cashierNamespace.on("connection", async (socket: CashierSocket) => {
   // socket event listeners
-  socket.on(
-    "getTakeAwayOrders",
-    async (status: TakeAwayOrderStatusType[] = [TakeAwayOrderStatusType.New]) => {
+  socket.on("getTakeAwayOrders", async () => {
+    Logger.log("getTakeAwayOrders");
+    try {
       const takeAwayOrders = await prisma.takeAwayOrder.findMany({
-        where: {
-          status: {
-            in: status,
-          },
-        },
         orderBy: {
           createdAt: "desc",
         },
@@ -30,8 +26,10 @@ cashierNamespace.on("connection", async (socket: CashierSocket) => {
         },
       });
       socket.emit("takeAwayOrdersResults", takeAwayOrders);
+    } catch (error) {
+      socket.emit("takeAwayOrdersResultsError", error);
     }
-  );
+  });
 
   // event bus listeners
   const eventBusListeners = [
@@ -69,7 +67,7 @@ cashierNamespace.on("connection", async (socket: CashierSocket) => {
         });
 
         if (takeAwayOrder) {
-          socket.emit("takeAwayOrderPrepared", orderId);
+          socket.emit("takeAwayOrderPrepared", takeAwayOrder);
         }
       },
     ],

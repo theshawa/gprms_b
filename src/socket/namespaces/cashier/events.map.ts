@@ -8,8 +8,9 @@ export interface CashierListenEventsMap {
 
 export interface CashierEmitEventsMap {
   takeAwayOrdersResults: (orders: TakeAwayOrder[]) => void; // Replace 'any[]' with
+  takeAwayOrdersResultsError: (err: any) => void;
   newTakeAwayOrder: (order: TakeAwayOrder) => void;
-  takeAwayOrderPrepared: (orderId: number) => void;
+  takeAwayOrderPrepared: (orderId: TakeAwayOrder) => void;
 }
 
 export type CashierSocket = Socket<

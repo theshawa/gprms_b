@@ -236,9 +236,10 @@ model TakeAwayOrderItem {
 
 enum TakeAwayOrderStatusType {
     New
+    Preparing
     Prepared
     Completed
-    Rejected
+    Cancelled
 }
 
 model TakeAwayOrder {
