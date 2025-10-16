@@ -24,6 +24,8 @@ export const sendSMS = async (cfg: { to: string; body: string; whatsapp?: boolea
       `FAILED: sendSMS(to=${cfg.to}, body=${cfg.body}, whatsapp=${cfg.whatsapp}) ->`,
       error
     );
-    throw new Error("Failed to send message");
+    console.log(error);
+
+    // throw new Error(`Failed to send message due to an error: ${error}`);
   }
 };
