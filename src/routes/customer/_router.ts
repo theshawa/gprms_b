@@ -8,6 +8,7 @@ import {
   verifyLoginCodeBodySchema,
   verifyLoginCodeHandler,
 } from "./verify-login-code";
+import { menuRouter } from "./menu/_router";
 
 export const customerRouter = Router();
 
@@ -28,3 +29,5 @@ customerRouter.post("/refresh-auth", customerRefreshAuthHandler);
 customerRouter.post("/logout", customerLogoutHandler);
 
 customerRouter.use("/takeaway", takeawayRouter);
+
+customerRouter.use("/menu", menuRouter);
