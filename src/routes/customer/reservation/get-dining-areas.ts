@@ -6,7 +6,7 @@ export const getReservationsByPhoneHandler: RequestHandler<{}, DiningArea[], {}>
   _,
   res
 ) => {
-  const data = await prisma.diningArea.findMany({
+  const diningAreas = await prisma.diningArea.findMany({
     where: {
       reservationSeatsCount: {
         gt: 0,
@@ -17,5 +17,10 @@ export const getReservationsByPhoneHandler: RequestHandler<{}, DiningArea[], {}>
     },
   });
 
-  res.json(data);
+  const filteredDiningAreas = diningAreas.filter(
+    (area) =>
+      area.reservationSeatsCount > area.reservations.reduce((acc, curr) => acc + curr.noOfSeats, 0)
+  );
+
+  res.json(filteredDiningAreas);
 };
