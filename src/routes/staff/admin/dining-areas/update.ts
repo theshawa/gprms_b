@@ -7,9 +7,11 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
+// --- Validation schema ---
 export const updateDiningAreaHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
   description: z.string().trim().nonempty("Description is required"),
+  reservationSeatsCount: z.number().min(0, "Reservation seats count must be at least 0").optional(),
 });
 
 export const updateDiningAreaHandler: RequestHandler<
@@ -17,6 +19,12 @@ export const updateDiningAreaHandler: RequestHandler<
   DiningArea,
   { data: string }
 > = async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    throw new Exception(StatusCodes.BAD_REQUEST, "Invalid dining area ID");
+  }
+
+  // --- Validate body ---
   const {
     success,
     data: payload,
@@ -30,51 +38,45 @@ export const updateDiningAreaHandler: RequestHandler<
     );
   }
 
+  // --- Check existence ---
   const currentDiningArea = await prisma.diningArea.findUnique({
-    where: { id: parseInt(req.params.id) },
+    where: { id },
   });
   if (!currentDiningArea) {
-    throw new Exception(
-      StatusCodes.NOT_FOUND,
-      `Dining area with ID ${req.params.id} not found`
-    );
+    throw new Exception(StatusCodes.NOT_FOUND, `Dining area with ID ${id} not found`);
   }
 
-  const alreadyDiningArea = await prisma.diningArea.findFirst({
+  // --- Check name conflicts ---
+  const duplicate = await prisma.diningArea.findFirst({
     where: {
       name: payload.name.toUpperCase().trim(),
-      id: {
-        not: parseInt(req.params.id),
-      },
+      id: { not: id },
     },
   });
-
-  if (alreadyDiningArea) {
-    throw new Exception(
-      StatusCodes.CONFLICT,
-      "Another dining area with this name already exists"
-    );
+  if (duplicate) {
+    throw new Exception(StatusCodes.CONFLICT, "Another dining area with this name already exists");
   }
+
+  let imageUpload = currentDiningArea.image;
 
   if (req.file) {
-    await uploadAssetToCloudinary(
-      req.file,
-      "dining-areas",
-      currentDiningArea.id.toString()
-    );
+    imageUpload = (await uploadAssetToCloudinary(req.file, "dining-areas", `${id}-image`))
+      .public_id;
   }
 
-  const diningArea = await prisma.diningArea.update({
+  const area = await prisma.diningArea.update({
+    where: { id },
     data: {
       name: payload.name.toUpperCase().trim(),
       description: payload.description.trim(),
-    },
-    where: {
-      id: parseInt(req.params.id),
+      image: imageUpload,
+      reservationSeatsCount: payload.reservationSeatsCount,
     },
   });
 
-  await publishEvent("dining-area-updated", parseInt(req.params.id));
+  // --- Notify via Redis ---
+  await publishEvent("dining-area-updated", id);
 
-  res.json(diningArea);
+  // --- Return final updated area ---
+  res.status(StatusCodes.OK).json(area);
 };

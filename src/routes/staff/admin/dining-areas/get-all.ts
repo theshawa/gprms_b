@@ -8,6 +8,7 @@ export const getDiningAreasHandler: RequestHandler = async (_, res) => {
       name: "asc",
     },
     include: {
+      reservations: true,
       diningTables: {
         orderBy: {
           name: "asc",
