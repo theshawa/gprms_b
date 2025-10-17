@@ -9,13 +9,13 @@ import z from "zod";
 export const createDiningAreaHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
   description: z.string().trim().nonempty("Description is required"),
+  reservationSeatsCount: z.number().min(0, "Reservation seats count must be at least 0"),
 });
 
-export const createDiningAreaHandler: RequestHandler<
-  {},
-  DiningArea,
-  { data: string }
-> = async (req, res) => {
+export const createDiningAreaHandler: RequestHandler<{}, DiningArea, { data: string }> = async (
+  req,
+  res
+) => {
   const {
     success,
     data: payload,
@@ -40,29 +40,27 @@ export const createDiningAreaHandler: RequestHandler<
   });
 
   if (currentDiningArea) {
-    throw new Exception(
-      StatusCodes.CONFLICT,
-      "Dining area with this name already exists"
-    );
+    throw new Exception(StatusCodes.CONFLICT, "Dining area with this name already exists");
   }
 
   let diningArea = await prisma.diningArea.create({
     data: {
       name: payload.name.toUpperCase().trim(),
       description: payload.description.trim(),
+      reservationSeatsCount: payload.reservationSeatsCount,
       image: "",
     },
   });
 
-  const imageUploadResult = await uploadAssetToCloudinary(
+  const imageUpload = await uploadAssetToCloudinary(
     req.file,
     "dining-areas",
-    diningArea.id.toString()
+    `${diningArea.id}-image`
   );
 
   diningArea = await prisma.diningArea.update({
     where: { id: diningArea.id },
-    data: { image: imageUploadResult.public_id },
+    data: { image: imageUpload.public_id },
   });
 
   res.status(StatusCodes.CREATED).json(diningArea);

@@ -69,7 +69,7 @@ export const placeOrderHandler: RequestHandler<
     whatsapp: true,
   });
 
-  // TODO: Notify kitchen dashboard, Cashier dashboard
+  // Notify kitchen dashboard, Cashier dashboard
   await publishEvent("takeaway-order-placed", { orderId: takeAwayOrder.id });
 
   res.json(takeAwayOrder);
