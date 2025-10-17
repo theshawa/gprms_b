@@ -14,7 +14,7 @@ export const createStaffMemberHandlerBodySchema = z.object({
     .trim()
     .nonempty("Password is required")
     .min(6, "Password must be at least 6 characters long"),
-  role: z.enum(["KitchenManager", "Cashier", "Waiter"]),
+  role: z.enum(["KitchenManager", "Cashier", "Waiter", "Receptionist"]),
 });
 
 export const createStaffMemberHandler: RequestHandler<
@@ -29,10 +29,7 @@ export const createStaffMemberHandler: RequestHandler<
   });
 
   if (currentStaffMember) {
-    throw new Exception(
-      StatusCodes.CONFLICT,
-      "User with this username already exists"
-    );
+    throw new Exception(StatusCodes.CONFLICT, "User with this username already exists");
   }
 
   const passwordHash = await hashPassword(req.body.password);

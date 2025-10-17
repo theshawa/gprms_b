@@ -8,6 +8,7 @@ import { createInitialAdminHandler } from "./create-initial-admin";
 import { kitchenManagerRouter } from "./kitchen-manager/_router";
 import { staffLoginHandler, staffLoginHandlerBodySchema } from "./login";
 import { staffLogoutHandler } from "./logout";
+import { receptionistRouter } from "./receptionist/_router";
 import { staffRefreshAuthHandler } from "./refresh-auth";
 import { waiterRouter } from "./waiter/_router";
 
@@ -29,3 +30,9 @@ staffRouter.use(
 staffRouter.use("/waiter", staffAuthRequiredMiddleware(StaffRole.Waiter), waiterRouter);
 
 staffRouter.use("/cashier", staffAuthRequiredMiddleware(StaffRole.Cashier), cashierRouter);
+
+staffRouter.use(
+  "/receptionist",
+  staffAuthRequiredMiddleware(StaffRole.Receptionist),
+  receptionistRouter
+);
