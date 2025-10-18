@@ -29,9 +29,12 @@ model StaffMember {
 
     name String
 
-    role                StaffRole
-    activities          StaffActivityLog[]
-    assignedDiningAreas WaiterAssignment[]
+    role                    StaffRole
+    activities              StaffActivityLog[]
+    assignedDiningAreas     WaiterAssignment[]
+    payrollConfig           StaffPayrollConfig?
+    payrollRecords          PayrollRecord[]
+    processedPayrollRecords PayrollRecord[]     @relation("payroll_processor")
 }
 
 model StaffActivityLog {
@@ -291,4 +294,69 @@ model TakeAwayOrder {
     items TakeAwayOrderItem[]
 
     createdAt DateTime @default(now())
+}
+
+// Payroll System Models
+
+model StaffPayrollConfig {
+    id            Int         @id @default(autoincrement())
+    staffMemberId Int         @unique
+    staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    basicSalary        Float @default(0.0)
+    transportAllowance Float @default(0.0)
+    mealAllowance      Float @default(0.0)
+    otherAllowance     Float @default(0.0)
+
+    taxPercentage Float @default(0.0)
+    epfPercentage Float @default(8.0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum PayrollRecordStatus {
+    Draft
+    Processed
+    Paid
+}
+
+model PayrollRecord {
+    id Int @id @default(autoincrement())
+
+    staffMemberId Int
+    staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    month Int // 1-12
+    year  Int
+
+    basicSalary        Float @default(0.0)
+    transportAllowance Float @default(0.0)
+    mealAllowance      Float @default(0.0)
+    otherAllowance     Float @default(0.0)
+    bonusAmount        Float @default(0.0)
+
+    grossPay Float @default(0.0)
+
+    taxAmount Float @default(0.0)
+    epfAmount Float @default(0.0)
+
+    totalDeductions Float @default(0.0)
+
+    netPay Float @default(0.0)
+
+    status PayrollRecordStatus @default(Draft)
+
+    processedBy Int?
+    processor   StaffMember? @relation("payroll_processor", fields: [processedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    processedAt DateTime?
+    paidAt      DateTime?
+
+    notes String @default("")
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([staffMemberId, month, year])
 }
