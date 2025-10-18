@@ -13,10 +13,7 @@ export const deleteDiningAreaHandler: RequestHandler<{
     },
   });
   if (!currentDiningArea) {
-    throw new Exception(
-      StatusCodes.NOT_FOUND,
-      "Dining Area with this ID does not exist"
-    );
+    throw new Exception(StatusCodes.NOT_FOUND, "Dining Area with this ID does not exist");
   }
 
   const diningTables = await prisma.diningTable.findMany({
