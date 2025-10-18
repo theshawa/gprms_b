@@ -1,8 +1,11 @@
 import { prisma } from "@/prisma";
-import { subscribeToEvent, unsubscribeFromEvent } from "@/redis/events/consumer";
+import {
+  subscribeToEvent,
+  unsubscribeFromEvent,
+} from "@/redis/events/consumer";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
-import { StaffRole, TakeAwayOrderStatusType } from "@prisma/client";
+import { OrderStatusType, StaffRole, TakeAwayOrderStatusType } from "@prisma/client";
 import { CashierSocket } from "./events.map";
 
 export const cashierNamespace = io.of("/cashier");
@@ -26,6 +29,23 @@ cashierNamespace.on("connection", async (socket: CashierSocket) => {
       socket.emit("takeAwayOrdersResults", takeAwayOrders);
     } catch (error) {
       socket.emit("takeAwayOrdersResultsError", error);
+    }
+  });
+
+  // Listener for Dine-In Orders
+  socket.on("getDineInOrders", async () => {
+    try {
+      const orders = await prisma.order.findMany({
+        where: { status: OrderStatusType.New },
+        orderBy: { createdAt: "desc" },
+        include: {
+          orderItems: { include: { dish: { select: { name: true, price: true } } } },
+          customer: { select: { name: true, phoneNumber: true } },
+        },
+      });
+      socket.emit("dineInOrdersResults", orders);
+    } catch (error) {
+      socket.emit("dineInOrdersError", error);
     }
   });
 
@@ -86,6 +106,21 @@ cashierNamespace.on("connection", async (socket: CashierSocket) => {
         if (takeAwayOrder) {
           socket.emit("takeAwayOrderPrepared", takeAwayOrder);
         }
+      },
+    ],
+    [
+      "order-placed",
+      async ({ orderId }: { orderId: number }) => {
+        const order = await prisma.order.findFirst({
+          where: { id: orderId, status: OrderStatusType.New },
+          include: {
+            orderItems: {
+              include: { dish: { select: { name: true, price: true } } },
+            },
+            customer: { select: { name: true, phoneNumber: true } },
+          },
+        });
+        if (order) socket.emit("newDineInOrder", order);
       },
     ],
   ] as const;

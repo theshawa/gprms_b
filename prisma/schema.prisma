@@ -32,6 +32,9 @@ model StaffMember {
     role                StaffRole
     activities          StaffActivityLog[]
     assignedDiningAreas WaiterAssignment[]
+
+    handledReservations Reservation[]
+    order Order[]
 }
 
 model StaffActivityLog {
@@ -53,12 +56,16 @@ model Customer {
 
     loyaltyPoints Int @default(0)
 
+    reservations Reservation[]
+    order Order[]
+    
     createdAt DateTime @default(now())
 }
 
 enum OrderStatusType {
     New
     InProgress
+    Ready
     Completed
     Rejected
 }
@@ -70,7 +77,48 @@ model Order {
 
     status OrderStatusType @default(New)
 
+    totalAmount  Float            @default(0)
+
     createdAt DateTime @default(now())
+    updatedAt    DateTime         @updatedAt
+
+    // Optional links (for dine-in context)
+    reservationId Int? 
+    reservation   Reservation?    @relation(fields: [reservationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    customerId   Int?
+    customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    waiterId     Int?
+    waiter       StaffMember?     @relation(fields: [waiterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+    // Relationship to order items
+    orderItems   OrderItem[]
+
+    // Optional notes (special instructions)
+    notes        String?
+
+    // Timestamps for tracking
+    completedAt  DateTime?
+    rejectedAt   DateTime?
+
+    @@index([status])
+    @@index([customerId])
+    @@index([reservationId])
+}
+
+model OrderItem {
+    id       Int     @id @default(autoincrement())
+    orderId  Int
+    order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    dishId   Int
+    dish     Dish    @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    quantity Int     @default(1)
+    price    Float   @default(0) // price at the time of order
+
+    @@unique([orderId, dishId])
 }
 
 model DiningArea {
@@ -159,6 +207,7 @@ model Dish {
     ingredients       DishIngredient[]
     menuItems         MenuItem[]
     TakeAwayOrderItem TakeAwayOrderItem[]
+    orderItems OrderItem[]
 }
 
 model DishIngredient {
@@ -249,7 +298,16 @@ model Reservation {
 
     notes String
 
+    order Order[]
+
+    // Indexes for performance
+    @@index([reservationDate, timeSlot])
+    @@index([customerId])
+    @@index([diningAreaId])
+    @@index([status])
+
     createdAt DateTime @default(now())
+
 }
 
 model TakeAwayOrderItem {
