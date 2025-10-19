@@ -17,10 +17,5 @@ export const getReservationsByPhoneHandler: RequestHandler<{}, DiningArea[], {}>
     },
   });
 
-  const filteredDiningAreas = diningAreas.filter(
-    (area) =>
-      area.reservationSeatsCount > area.reservations.reduce((acc, curr) => acc + curr.noOfSeats, 0)
-  );
-
-  res.json(filteredDiningAreas);
+  res.json(diningAreas);
 };

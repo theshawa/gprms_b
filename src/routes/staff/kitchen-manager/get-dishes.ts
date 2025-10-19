@@ -6,11 +6,18 @@ export const getDishsHandler: RequestHandler<Dish[], {}, {}> = async (
   req,
   res
 ) => {
-  console.log("Fetching Dishes");
+  console.log("Fetching Dishes for kitchen manager");
 
   const dishes = await prisma.dish.findMany({
     orderBy: {
       name: "asc",
+    },
+    include: {
+      ingredients: {
+        include: {
+          ingredient: true
+        }
+      }
     },
   });
 
