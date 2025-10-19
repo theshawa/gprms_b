@@ -20,23 +20,8 @@ export const getMyPayslipHandler: RequestHandler<
       staffMemberId: staffId,
     },
     include: {
-      payrollBatch: {
-        select: {
-          id: true,
-          month: true,
-          year: true,
-          status: true,
-          processedAt: true,
-        },
-      },
-      staffMember: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          role: true,
-        },
-      },
+      processor: true,
+      staffMember: true,
     },
   });
 
