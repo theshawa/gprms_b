@@ -1,5 +1,5 @@
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
+import { getSocketIO } from "@/socket/io";
 import { sendSMS } from "@/twilio";
 import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
@@ -46,8 +46,8 @@ export const markTakeAwayOrderPreparingHandler: RequestHandler<{ id: string }, {
     whatsapp: true,
   });
 
-  // TODO: Notify kitchen Cashier dashboard
-  await publishEvent("takeaway-order-preparing", { orderId: takeAwayOrder.id });
+  const io = getSocketIO();
+  io.of("/cashier").to("takeaway-room").emit("takeaway-order-marked-preparing", takeAwayOrder);
 
   res.sendStatus(StatusCodes.OK);
 };

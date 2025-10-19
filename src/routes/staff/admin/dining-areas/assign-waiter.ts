@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { StaffRole, WaiterAssignment } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -8,10 +7,7 @@ import z from "zod";
 
 export const assignWaiterHandlerBodySchema = z.object({
   waiterId: z.number().int().positive("Waiter Id must be a positive integer"),
-  diningAreaId: z
-    .number()
-    .int()
-    .positive("Dining Area Id must be a positive integer"),
+  diningAreaId: z.number().int().positive("Dining Area Id must be a positive integer"),
 });
 
 export const assignWaiterHandler: RequestHandler<
@@ -38,10 +34,7 @@ export const assignWaiterHandler: RequestHandler<
   });
 
   if (!waiter) {
-    throw new Exception(
-      StatusCodes.NOT_FOUND,
-      "Waiter with this ID does not exist"
-    );
+    throw new Exception(StatusCodes.NOT_FOUND, "Waiter with this ID does not exist");
   }
 
   const assignment = await prisma.waiterAssignment.create({
@@ -60,7 +53,7 @@ export const assignWaiterHandler: RequestHandler<
     },
   });
 
-  await publishEvent("waiter-assigned", waiter.id);
+  // await publishEvent("waiter-assigned", waiter.id);
 
   res.status(StatusCodes.CREATED).json(assignment);
 };

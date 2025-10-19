@@ -1,14 +1,11 @@
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
-import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
-export const markOrderPreparingHandler: RequestHandler<
-  { id: string },
-  {},
-  {}
-> = async (req, res) => {
+export const markOrderPreparingHandler: RequestHandler<{ id: string }, {}, {}> = async (
+  req,
+  res
+) => {
   const id = parseInt(req.params.id);
 
   const order = await prisma.order.update({
@@ -39,7 +36,7 @@ export const markOrderPreparingHandler: RequestHandler<
   //   .join("\n");
 
   // TODO: Notify kitchen Cashier dashboard
-  await publishEvent("order-preparing", { orderId: order.id });
+  // await publishEvent("order-preparing", { orderId: order.id });
 
   res.sendStatus(StatusCodes.OK);
 };

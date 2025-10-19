@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { deleteFromCache, getFromCache } from "@/redis/storage";
 import { sendSMS } from "@/twilio";
 import { Reservation } from "@prisma/client";
@@ -76,10 +75,6 @@ export const verifyPhoneNumberAndPlaceReservationHandler: RequestHandler<
       meal: payload.reservationData.meal,
       reservationCode,
     },
-  });
-
-  await publishEvent("reservation-placed", {
-    reservationId: reservation.id,
   });
 
   await sendSMS({

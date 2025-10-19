@@ -1,7 +1,6 @@
 import { uploadAssetToCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { DiningArea } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -75,7 +74,7 @@ export const updateDiningAreaHandler: RequestHandler<
   });
 
   // --- Notify via Redis ---
-  await publishEvent("dining-area-updated", id);
+  // await publishEvent("dining-area-updated", id);
 
   // --- Return final updated area ---
   res.status(StatusCodes.OK).json(area);

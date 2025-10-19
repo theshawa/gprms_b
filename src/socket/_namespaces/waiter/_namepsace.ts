@@ -1,16 +1,11 @@
 import { prisma } from "@/prisma";
-import {
-  subscribeToEvent,
-  unsubscribeFromEvent,
-} from "@/redis/events/consumer";
-import { getFromCache } from "@/redis/storage";
+import { subscribeToEvent, unsubscribeFromEvent } from "@/redis/events/consumer";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
-import { DiningTableStatusType, StaffRole } from "@prisma/client";
+import { StaffRole } from "@prisma/client";
 import { WaiterSocket } from "./events.map";
 import { getDiningTables } from "./helpers/get-dining-tables";
 import { getWaiterAssignments } from "./helpers/get-waiter-assignments";
-import { includes } from "zod";
 
 export const waiterNamespace = io.of("/waiter");
 
@@ -72,7 +67,7 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     }
   );
 
-  socket.on("waiterAcceptedTable", async (data: { tableId: number, waiterId: number }) => {
+  socket.on("waiterAcceptedTable", async (data: { tableId: number; waiterId: number }) => {
     try {
       console.log("Waiter accepted table:", data.tableId);
 
@@ -114,10 +109,7 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
       const assignments = await getWaiterAssignments(socket.data.user.id);
 
       if (assignments.find((a) => a.diningAreaId === diningAreaId)) {
-        const diningTables = await getDiningTables(
-          socket.data.user.id,
-          assignments
-        );
+        const diningTables = await getDiningTables(socket.data.user.id, assignments);
         socket.emit("diningTables", diningTables);
       }
     } catch (error) {
@@ -169,10 +161,7 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     }
   };
 
-  const handleWaiterAcceptTable = async (d: {
-    waiterId: number;
-    tableId: number;
-  }) => {
+  const handleWaiterAcceptTable = async (d: { waiterId: number; tableId: number }) => {
     console.log("Waiter accepted table:", d.tableId);
 
     socket.emit("diningTableStatus", d.tableId, "order-ongoing");

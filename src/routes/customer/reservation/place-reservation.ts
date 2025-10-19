@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { sendSMS } from "@/twilio";
 import { Reservation } from "@prisma/client";
 import { RequestHandler } from "express";
@@ -57,10 +56,6 @@ export const placeReservationHandler: RequestHandler<
       meal: payload.meal,
       reservationCode,
     },
-  });
-
-  await publishEvent("reservation-placed", {
-    reservationId: reservation.id,
   });
 
   await sendSMS({

@@ -1,4 +1,5 @@
 import { prisma } from "@/prisma";
+import { getSocketIO } from "@/socket/io";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -8,7 +9,7 @@ export const completeTakeAwayOrderHandler: RequestHandler<{ id: string }, {}, {}
 ) => {
   const id = parseInt(req.params.id);
 
-  await prisma.takeAwayOrder.update({
+  const takeAwayOrder = await prisma.takeAwayOrder.update({
     where: {
       id,
     },
@@ -23,6 +24,9 @@ export const completeTakeAwayOrderHandler: RequestHandler<{ id: string }, {}, {}
       },
     },
   });
+
+  const io = getSocketIO();
+  io.of("/kitchen-manager").to("takeaway-room").emit("takeaway-order-completed", takeAwayOrder);
 
   res.sendStatus(StatusCodes.OK);
 };

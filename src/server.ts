@@ -7,6 +7,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
+import { initCloudinary } from "./cloudinary";
+import { initSocketIO } from "./socket/io";
 
 dotenv.config();
 
@@ -32,48 +34,41 @@ const PORT = process.env.PORT || 3000;
 
 export const expressServer = createServer(app);
 
-import "./socket/server";
+initSocketIO(expressServer);
 
-import {
-  connectRedisEventsConsumer,
-  disconnectRedisEventsConsumer,
-} from "@/redis/events/consumer";
-import {
-  connectRedisEventsPublisher,
-  disconnectRedisEventsPublisher,
-} from "@/redis/events/publisher";
-import {
-  clearCache,
-  connectRedisStorage,
-  disconnectRedisStorage,
-} from "@/redis/storage";
-import { initCloudinary } from "./cloudinary";
-(async () => {
-  await connectRedisStorage();
-  await connectRedisEventsPublisher();
-  await connectRedisEventsConsumer();
+// import { connectRedisEventsConsumer } from "@/redis/events/consumer";
+// import { connectRedisEventsPublisher } from "@/redis/events/publisher";
+// import { clearCache, connectRedisStorage } from "@/redis/storage";
+// import { initCloudinary } from "./cloudinary";
+// (async () => {
+//   await connectRedisStorage();
+//   await connectRedisEventsPublisher();
+//   await connectRedisEventsConsumer();
 
-  await clearCache();
+//   await clearCache();
 
-  initCloudinary();
+//   initCloudinary();
 
-  expressServer.listen(PORT, () => {
-    Logger.log(
-      "SERVER HEALTH",
-      `HTTP server listening on http://localhost:${PORT}`
-    );
-  });
-})();
+//   expressServer.listen(PORT, () => {
+//     Logger.log("SERVER HEALTH", `HTTP server listening on http://localhost:${PORT}`);
+//   });
+// })();
 
-const gracefulShutdown = async () => {
-  disconnectRedisEventsConsumer();
-  disconnectRedisEventsPublisher();
-  disconnectRedisStorage();
-  expressServer.close(() => {
-    Logger.log("SERVER HEALTH", "HTTP server closed gracefully.");
-    process.exit(0);
-  });
-};
+initCloudinary();
 
-process.on("SIGINT", gracefulShutdown);
-process.on("SIGTERM", gracefulShutdown);
+expressServer.listen(PORT, () => {
+  Logger.log("SERVER HEALTH", `HTTP server listening on http://localhost:${PORT}`);
+});
+
+// const gracefulShutdown = async () => {
+//   // disconnectRedisEventsConsumer();
+//   // disconnectRedisEventsPublisher();
+//   // disconnectRedisStorage();
+//   expressServer.close(() => {
+//     Logger.log("SERVER HEALTH", "HTTP server closed gracefully.");
+//     process.exit(0);
+//   });
+// };
+
+// process.on("SIGINT", gracefulShutdown);
+// process.on("SIGTERM", gracefulShutdown);

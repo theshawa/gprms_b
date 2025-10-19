@@ -10,22 +10,22 @@ export const sendSMS = async (cfg: { to: string; body: string; whatsapp?: boolea
     `sendSMS(to=${cfg.to}, body=${cfg.body.replaceAll("\n", "_")}, whatsapp=${cfg.whatsapp})`
   );
 
-  const { to, body, whatsapp = false } = cfg;
-  try {
-    const message = await client.messages.create({
-      body,
-      from: whatsapp ? `whatsapp:${Config.TWILIO_PHONE_NUMBER()}` : Config.TWILIO_PHONE_NUMBER(),
-      to: whatsapp ? `whatsapp:${to}` : to,
-    });
-    return message;
-  } catch (error) {
-    Logger.log(
-      "TWILIO",
-      `FAILED: sendSMS(to=${cfg.to}, body=${cfg.body}, whatsapp=${cfg.whatsapp}) ->`,
-      error
-    );
-    console.log(error);
+  // const { to, body, whatsapp = false } = cfg;
+  // try {
+  //   const message = await client.messages.create({
+  //     body,
+  //     from: whatsapp ? `whatsapp:${Config.TWILIO_PHONE_NUMBER()}` : Config.TWILIO_PHONE_NUMBER(),
+  //     to: whatsapp ? `whatsapp:${to}` : to,
+  //   });
+  //   return message;
+  // } catch (error) {
+  //   Logger.log(
+  //     "TWILIO",
+  //     `FAILED: sendSMS(to=${cfg.to}, body=${cfg.body}, whatsapp=${cfg.whatsapp}) ->`,
+  //     error
+  //   );
+  //   console.log(error);
 
-    // throw new Error(`Failed to send message due to an error: ${error}`);
-  }
+  //   // throw new Error(`Failed to send message due to an error: ${error}`);
+  // }
 };

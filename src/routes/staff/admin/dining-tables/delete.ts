@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -14,10 +13,7 @@ export const deleteDiningTableHandler: RequestHandler<{
   });
 
   if (!currentDiningTable) {
-    throw new Exception(
-      StatusCodes.NOT_FOUND,
-      "Dining Table with this ID does not exist"
-    );
+    throw new Exception(StatusCodes.NOT_FOUND, "Dining Table with this ID does not exist");
   }
 
   await prisma.diningTable.delete({
@@ -26,10 +22,10 @@ export const deleteDiningTableHandler: RequestHandler<{
     },
   });
 
-  await publishEvent(
-    "dining-table-deleted-in-dining-area",
-    currentDiningTable.diningAreaId
-  );
+  // await publishEvent(
+  //   "dining-table-deleted-in-dining-area",
+  //   currentDiningTable.diningAreaId
+  // );
 
   res.sendStatus(StatusCodes.OK);
 };
