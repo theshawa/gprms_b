@@ -38,7 +38,7 @@
   "license": "ISC",
   "main": "dist/server.js",
   "engines": {
-    "node": ">=18.16.0 <21"
+    "node": "22.20.0"
   },
   "name": "gprms_backend",
   "scripts": {
