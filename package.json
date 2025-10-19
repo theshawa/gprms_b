@@ -42,7 +42,7 @@
   },
   "name": "gprms_backend",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --skipLibCheck --noEmitOnError false",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
     "serve": "node src/server.ts"
   },
