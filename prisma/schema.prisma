@@ -5,348 +5,360 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum StaffRole {
-    Admin
-    Cashier
-    Waiter
-    KitchenManager
-    Receptionist
+  Admin
+  Cashier
+  Waiter
+  KitchenManager
+  Receptionist
 }
 
 model StaffMember {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    username     String @unique
-    passwordHash String
+  username     String @unique
+  passwordHash String
 
-    name String
+  name String
 
-    role                StaffRole
-    activities          StaffActivityLog[]
-    assignedDiningAreas WaiterAssignment[]
+  role                StaffRole
+  activities          StaffActivityLog[]
+  assignedDiningAreas WaiterAssignment[]
 
-    handledReservations Reservation[]
-    order Order[]
+  handledReservations Reservation[]
+  order               Order[]
 }
 
 model StaffActivityLog {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    staffMemberId Int
-    staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  staffMemberId Int
+  staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    activity String
+  activity String
 
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Customer {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String
-    phoneNumber String @unique
+  name        String
+  phoneNumber String @unique
 
-    loyaltyPoints Int @default(0)
+  loyaltyPoints Int @default(0)
 
-    reservations Reservation[]
-    order Order[]
-    
-    createdAt DateTime @default(now())
+  reservations Reservation[]
+  order        Order[]
+
+  createdAt DateTime @default(now())
 }
 
 enum OrderStatusType {
-    New
-    InProgress
-    Ready
-    Completed
-    Rejected
+  New
+  InProgress
+  Ready
+  Completed
+  Rejected
 }
 
 model Order {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    orderCode String
+  orderCode String
 
-    status OrderStatusType @default(New)
+  status OrderStatusType @default(New)
 
-    totalAmount  Float            @default(0)
+  totalAmount Float @default(0)
 
-    createdAt DateTime @default(now())
-    updatedAt    DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    // Optional links (for dine-in context)
-    reservationId Int? 
-    reservation   Reservation?    @relation(fields: [reservationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  // Optional links (for dine-in context)
+  reservationId Int?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
-    customerId   Int?
-    customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  customerId Int?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
-    waiterId     Int?
-    waiter       StaffMember?     @relation(fields: [waiterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  waiterId Int?
+  waiter   StaffMember? @relation(fields: [waiterId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
-    // Relationship to order items
-    orderItems   OrderItem[]
+  // Relationship to order items
+  orderItems OrderItem[]
 
-    // Optional notes (special instructions)
-    notes        String?
+  // Optional notes (special instructions)
+  notes String?
 
-    // Timestamps for tracking
-    completedAt  DateTime?
-    rejectedAt   DateTime?
+  // Timestamps for tracking
+  completedAt DateTime?
+  rejectedAt  DateTime?
 
-    @@index([status])
-    @@index([customerId])
-    @@index([reservationId])
+  @@index([status])
+  @@index([customerId])
+  @@index([reservationId])
 }
 
 model OrderItem {
-    id       Int     @id @default(autoincrement())
-    orderId  Int
-    order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id      Int   @id @default(autoincrement())
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    dishId   Int
-    dish     Dish    @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dishId Int
+  dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    quantity Int     @default(1)
-    price    Float   @default(0) // price at the time of order
+  quantity Int   @default(1)
+  price    Float @default(0) // price at the time of order
 
-    @@unique([orderId, dishId])
+  @@unique([orderId, dishId])
 }
 
 model DiningArea {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String @unique
-    description String
+  name        String @unique
+  description String
 
-    diningTables    DiningTable[]
-    assignedWaiters WaiterAssignment[]
-    reservations    Reservation[]
+  diningTables    DiningTable[]
+  assignedWaiters WaiterAssignment[]
+  reservations    Reservation[]
 
-    image String
+  image String
 
-    reservationSeatsCount Int
+  reservationSeatsCount Int?
+}
+
+enum DiningTableStatusType {
+  Available
+  WaitingForWaiter
+  Dining
 }
 
 model DiningTable {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name         String
-    diningAreaId Int
-    isReservable Boolean @default(true)
-    maxSeats     Int
+  name         String
+  diningAreaId Int
+  isReservable Boolean @default(true)
+  maxSeats     Int
 
-    diningArea DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  status DiningTableStatusType @default(Available)
 
-    @@unique([name, diningAreaId])
+  diningArea DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([name, diningAreaId])
 }
 
 model WaiterAssignment {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    diningAreaId Int
-    diningArea   DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diningAreaId Int
+  diningArea   DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    waiterId Int
-    waiter   StaffMember @relation(fields: [waiterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  waiterId Int
+  waiter   StaffMember @relation(fields: [waiterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    assignedAt DateTime @default(now())
+  assignedAt DateTime @default(now())
 
-    @@unique([diningAreaId, waiterId])
+  @@unique([diningAreaId, waiterId])
 }
 
 model Ingredient {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String @unique
-    description String
+  name        String @unique
+  description String
 
-    costPerUnit Float @default(0.0)
+  costPerUnit Float @default(0.0)
 
-    unit String @default("kg")
+  unit String @default("kg")
 
-    stockQuantity     Float @default(0.0)
-    lowStockThreshold Float @default(0.0)
+  stockQuantity     Float @default(0.0)
+  lowStockThreshold Float @default(0.0)
 
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 
-    stockMovements  IngredientStockMovement[]
-    dishIngredients DishIngredient[]
+  stockMovements  IngredientStockMovement[]
+  dishIngredients DishIngredient[]
 }
 
 model IngredientStockMovement {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    ingredientId Int
-    ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    quantity Float
-    reason   String
+  quantity Float
+  reason   String
 
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Dish {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String @unique
-    description String
+  name        String @unique
+  description String
 
-    price Float @default(0.0)
+  price Float @default(0.0)
 
-    image String
+  image String
 
-    ingredients       DishIngredient[]
-    menuItems         MenuItem[]
-    TakeAwayOrderItem TakeAwayOrderItem[]
-    orderItems OrderItem[]
+  ingredients       DishIngredient[]
+  menuItems         MenuItem[]
+  TakeAwayOrderItem TakeAwayOrderItem[]
+  orderItems        OrderItem[]
 }
 
 model DishIngredient {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    dishId Int
-    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dishId Int
+  dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    ingredientId Int
-    ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    quantity Float
+  quantity Float
 
-    @@unique([dishId, ingredientId])
+  @@unique([dishId, ingredientId])
 }
 
 enum Meal {
-    Brunch
-    Lunch
-    HighTea
-    Dinner
+  Brunch
+  Lunch
+  HighTea
+  Dinner
 }
 
 model Menu {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String @unique
-    meal        Meal
-    description String
+  name        String @unique
+  meal        Meal
+  description String
 
-    isActive Boolean @default(false)
+  isActive Boolean @default(false)
 
-    menuSections MenuSection[]
+  menuSections MenuSection[]
 }
 
 model MenuSection {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    menuId Int
-    menu   Menu @relation(fields: [menuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  menuId Int
+  menu   Menu @relation(fields: [menuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    name        String
-    description String
+  name        String
+  description String
 
-    position Int
+  position Int
 
-    MenuItem MenuItem[]
+  MenuItem MenuItem[]
 }
 
 model MenuItem {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    menuSectionId Int
-    menuSection   MenuSection @relation(fields: [menuSectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  menuSectionId Int
+  menuSection   MenuSection @relation(fields: [menuSectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    dishId Int
-    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dishId Int
+  dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    position Int
+  position Int
 
-    @@unique([menuSectionId, dishId])
+  @@unique([menuSectionId, dishId])
 }
 
 enum ReservationStatus {
-    Pending
-    Cancelled
-    Completed
+  Pending
+  Cancelled
+  Completed
 }
 
 model Reservation {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    reservationCode String @unique
+  reservationCode String @unique
 
-    customerName  String
-    customerPhone String
+  customerName  String
+  customerPhone String
 
-    meal Meal
+  meal Meal
 
-    diningAreaId Int
-    diningArea   DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diningAreaId Int
+  diningArea   DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    noOfSeats Int
+  noOfSeats Int
 
-    reservationDate DateTime
+  reservationDate DateTime
 
-    status ReservationStatus @default(Pending)
+  status ReservationStatus @default(Pending)
 
-    notes String
+  notes String
 
-    order Order[]
+  order Order[]
 
-    // Indexes for performance
-    @@index([reservationDate, timeSlot])
-    @@index([customerId])
-    @@index([diningAreaId])
-    @@index([status])
+  createdAt DateTime @default(now())
 
-    createdAt DateTime @default(now())
+  StaffMember   StaffMember? @relation(fields: [staffMemberId], references: [id])
+  staffMemberId Int?
+  Customer      Customer?    @relation(fields: [customerId], references: [id])
+  customerId    Int?
 
+  // Indexes for performance
+  // @@index([reservationDate, timeSlot])
+  // @@index([customerId])
+  @@index([diningAreaId])
+  @@index([status])
 }
 
 model TakeAwayOrderItem {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    takeAwayOrderId Int
-    takeAwayOrder   TakeAwayOrder @relation(fields: [takeAwayOrderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  takeAwayOrderId Int
+  takeAwayOrder   TakeAwayOrder @relation(fields: [takeAwayOrderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    dishId Int
-    dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dishId Int
+  dish   Dish @relation(fields: [dishId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    quantity Int @default(1)
+  quantity Int @default(1)
 
-    priceAtOrder Float
+  priceAtOrder Float
 
-    @@unique([takeAwayOrderId, dishId])
+  @@unique([takeAwayOrderId, dishId])
 }
 
 enum TakeAwayOrderStatusType {
-    New
-    Preparing
-    Prepared
-    Completed
-    Cancelled
+  New
+  Preparing
+  Prepared
+  Completed
+  Cancelled
 }
 
 model TakeAwayOrder {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    customerName  String
-    customerPhone String
+  customerName  String
+  customerPhone String
 
-    notes String
+  notes String
 
-    totalAmount Float @default(0.0)
+  totalAmount Float @default(0.0)
 
-    status TakeAwayOrderStatusType @default(New)
+  status TakeAwayOrderStatusType @default(New)
 
-    items TakeAwayOrderItem[]
+  items TakeAwayOrderItem[]
 
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
