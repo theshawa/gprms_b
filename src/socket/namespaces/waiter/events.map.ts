@@ -4,12 +4,10 @@ export interface WaiterListenEventsMap {
   getDiningTables: () => void;
   getDiningTableStatus: (tableId: number) => void;
   getOngoingOrdersCount: (waiterId: number) => void;
-  "customer-login-notification": (data: {
-    tableNo: string;
-    message: string;
-    timestamp: string;
+  "waiter-accepted-table": (data: {
+    tableId: number;
+    waiterId: number;
   }) => void;
-  waiterAcceptedTable: (data: any) => void;
   // Add other events specific to the waiter namespace here
 }
 
@@ -20,12 +18,8 @@ export interface WaiterEmitEventsMap {
   diningTableStatusError: (talbeId: number, error: any) => void;
   ongoingOrdersCount: (count: number) => void;
   ongoingOrdersCountError: (error: any) => void;
-  customerWaitingAtDiningTable: (data: {
-    tableId: number;
-    diningAreaId: number; // Assuming diningAreaId is the same as diningTableId for this example
-  }) => void;
-  "customer-waiting": (msg: string) => void;
-  "customer-waiting-error": (error: any) => void;
+  "customer-waiting": (tableId: number) => void;
+  "accepted-table-emit": () => void;
 }
 
 export type WaiterSocket = import("socket.io").Socket<

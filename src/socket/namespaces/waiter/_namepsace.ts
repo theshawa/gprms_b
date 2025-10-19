@@ -3,14 +3,15 @@ import {
   subscribeToEvent,
   unsubscribeFromEvent,
 } from "@/redis/events/consumer";
-import { getFromCache } from "@/redis/storage";
+import { deleteFromCache, getFromCache, saveToCache } from "@/redis/storage";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
-import { DiningTableStatusType, StaffRole } from "@prisma/client";
 import { WaiterSocket } from "./events.map";
 import { getDiningTables } from "./helpers/get-dining-tables";
 import { getWaiterAssignments } from "./helpers/get-waiter-assignments";
 import { includes } from "zod";
+import { StaffRole } from "@prisma/client";
+import { publishEvent } from "@/redis/events/publisher";
 
 export const waiterNamespace = io.of("/waiter");
 
@@ -26,29 +27,29 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     }
   });
 
-  // socket.on("getDiningTableStatus", async (tableId: number) => {
-  //   try {
-  //     const cachedSession = await getFromCache<{
-  //       id: string;
-  //       status: string;
-  //     }>("table-session:" + tableId.toString());
-  //     if (!cachedSession) {
-  //       socket.emit("diningTableStatus", tableId, null);
-  //       return;
-  //     }
-  //     socket.emit("diningTableStatus", tableId, cachedSession.status);
-  //   } catch (error) {
-  //     socket.emit("diningTableStatusError", tableId, error);
-  //   }
-  // });
-
   socket.on("getDiningTableStatus", async (tableId: number) => {
-    const table = await prisma.diningTable.findUnique({
-      where: { id: tableId },
-      select: { status: true },
-    });
-    socket.emit("diningTableStatus", tableId, table?.status ?? "Available");
+    try {
+      const cachedSession = await getFromCache<{
+        waiterId: number;
+        status: string;
+      }>("diningTableStatus:" + tableId.toString());
+      if (!cachedSession) {
+        socket.emit("diningTableStatus", tableId, null);
+        return;
+      }
+      socket.emit("diningTableStatus", tableId, cachedSession.status);
+    } catch (error) {
+      socket.emit("diningTableStatusError", tableId, error);
+    }
   });
+
+  // socket.on("getDiningTableStatus", async (tableId: number) => {
+  //   const table = await prisma.diningTable.findUnique({
+  //     where: { id: tableId },
+  //     select: { status: true },
+  //   });
+  //   socket.emit("diningTableStatus", tableId, table?.status ?? "Available");
+  // });
 
   socket.on("getOngoingOrdersCount", async (waiterId: number) => {
     try {
@@ -60,42 +61,43 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     }
   });
 
+  // socket.on(
+  //   "customer-login-notification",
+  //   async (data: { tableNo: string; message: string; timestamp: string }) => {
+  //     try {
+  //       const msg = `New Customer is waiting at table ${data.tableNo}`;
+  //       socket.emit("customer-waiting", msg);
+  //     } catch (error) {
+  //       socket.emit("customer-waiting-error", error);
+  //     }
+  //   }
+  // );
+
   socket.on(
-    "customer-login-notification",
-    async (data: { tableNo: string; message: string; timestamp: string }) => {
+    "waiter-accepted-table",
+    async (data: { tableId: number; waiterId: number }) => {
       try {
-        const msg = `New Customer is waiting at table ${data.tableNo}`;
-        socket.emit("customer-waiting", msg);
-      } catch (error) {
-        socket.emit("customer-waiting-error", error);
+        console.log("Waiter accepted table:", data.tableId);
+
+        await publishEvent("accepted-table", {
+          tableId: data.tableId,
+          waiterId: data.waiterId,
+        });
+        await deleteFromCache(`diningTableStatus:${data.tableId}`);
+        await saveToCache(
+          `diningTableStatus:${data.tableId}`,
+          {
+            tableId: data.tableId,
+            waiterId: data.waiterId,
+            status: "Dining",
+          },
+          4 * 3600
+        );
+      } catch (err) {
+        console.error("Failed to publish accepted-table event:", err);
       }
     }
   );
-
-  socket.on("waiterAcceptedTable", async (data: { tableId: number, waiterId: number }) => {
-    try {
-      console.log("Waiter accepted table:", data.tableId);
-
-      await prisma.diningTable.update({
-        where: { id: data.tableId },
-        data: { status: DiningTableStatusType.Dining },
-      });
-
-      // await prisma.order.update({})
-
-      io.of("/waiter").emit("diningTableStatusUpdate", {
-        tableNo: data.tableId,
-        message: "Waiter accepted the table",
-      });
-
-      io.of("/customer-dine-in").emit("diningTableStatusUpdate", {
-        waiterId: data.waiterId,
-        message: "Waiter assigned to your table",
-      });
-    } catch (err) {
-      console.error("Failed to update dining table status:", err);
-    }
-  });
 
   const handleWaiterAssignmentChange = async (waiterId: number) => {
     if (waiterId !== socket.data.user.id) {
@@ -169,13 +171,27 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     }
   };
 
-  const handleWaiterAcceptTable = async (d: {
-    waiterId: number;
-    tableId: number;
-  }) => {
-    console.log("Waiter accepted table:", d.tableId);
+  const handleCustomerStartedDining = async (tableId: number) => {
+    console.log("Waiters received customer-started-dining event");
 
-    socket.emit("diningTableStatus", d.tableId, "order-ongoing");
+    socket.emit("customer-waiting", tableId);
+  };
+
+  const handleWaiterAcceptedTable = async (data: {
+    tableId: number;
+    waiterId: number;
+  }) => {
+    console.log("Waiters received accepted-table event");
+    socket.emit("accepted-table-emit");
+    await saveToCache(
+      `waiterAssignedFlag:${data.tableId}`,
+      {
+        tableId: data.tableId,
+        waiterId: data.waiterId,
+        status: true,
+      },
+      4 * 3600
+    );
   };
 
   const eventBusListeners = [
@@ -187,7 +203,8 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
     ["dining-table-updated-in-dining-area", handleDiningAreaChange],
     ["order-started", handleOrderStarted],
     ["order-ended", handleOrderEnded],
-    ["waiter-accepted-table", handleWaiterAcceptTable],
+    ["customer-started-dining", handleCustomerStartedDining],
+    ["accepted-table", handleWaiterAcceptedTable],
   ] as const;
 
   for (const [event, handler] of eventBusListeners) {
