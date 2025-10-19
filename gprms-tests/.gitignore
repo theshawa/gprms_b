@@ -1,0 +1,80 @@
+# ----------------------------------------------------------------------
+# 1. Bytecode and Output Directories
+# ----------------------------------------------------------------------
+# Compiled Java class files
+*.class
+
+# Build/output directory (Maven)
+/target/
+
+# Build/output directory (Gradle)
+/build/
+
+# Ignore log files
+*.log
+/logs/
+
+# ----------------------------------------------------------------------
+# 2. Dependency Management (Maven/Gradle)
+# ----------------------------------------------------------------------
+# Maven local repository cache
+/repository/
+
+# Gradle metadata and caches
+.gradle
+!*.gradle.kts # Don't ignore build scripts if using Kotlin DSL
+
+# Gradle wrapper (often committed, but ignore its cache)
+/gradle/wrapper/caches/
+
+# ----------------------------------------------------------------------
+# 3. IDE Specific Files
+# ----------------------------------------------------------------------
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+*.classpath
+*.project
+*.settings
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# ----------------------------------------------------------------------
+# 4. Operating System and Utility Files
+# ----------------------------------------------------------------------
+# macOS
+.DS_Store
+.Trashes
+
+# Windows
+Thumbs.db
+
+# ----------------------------------------------------------------------
+# 5. Selenium & Testing Specific
+# ----------------------------------------------------------------------
+# Ignore downloaded browser drivers (Selenium Manager handles this now, but good practice)
+# If you manually place drivers in a folder, ignore that folder.
+/drivers/
+chromedriver
+geckodriver
+msedgedriver
+IEDriverServer.exe
+
+# Temporary files created during test execution (e.g., screenshots, reports)
+/test-reports/
+/screenshots/
+*.html.bak
+
+# Files used for shared communication with Node.js
+# (Assuming your shared path is outside the repo, but if a local copy exists)
+verification_code.txt

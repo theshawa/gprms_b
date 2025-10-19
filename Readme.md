@@ -17,3 +17,5 @@
 - Waiter Dashboard
 - Customer Remaining Frontend
 - Cashier Dashboard
+
+### Deployed branch name is release-branch.
