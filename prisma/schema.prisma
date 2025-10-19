@@ -35,7 +35,6 @@ model StaffMember {
     payrollConfig           StaffPayrollConfig?
     payrollRecords          PayrollRecord[]
     processedPayrollRecords PayrollRecord[]     @relation("payroll_processor")
-    Order                   Order[]
 }
 
 model StaffActivityLog {
@@ -57,6 +56,7 @@ model Customer {
 
     loyaltyPoints Int @default(0)
 
+    reservations Reservation[]
     order Order[]
 
     createdAt DateTime @default(now())
@@ -132,7 +132,13 @@ model DiningArea {
 
     image String
 
-    reservationSeatsCount Int
+    reservationSeatsCount Int?
+}
+
+enum DiningTableStatusType {
+  Available
+  WaitingForWaiter
+  Dining
 }
 
 model DiningTable {
@@ -142,6 +148,8 @@ model DiningTable {
     diningAreaId Int
     isReservable Boolean @default(true)
     maxSeats     Int
+
+    status DiningTableStatusType @default(Available)
 
     diningArea DiningArea @relation(fields: [diningAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -298,6 +306,17 @@ model Reservation {
     notes String
 
     createdAt DateTime @default(now())
+
+    StaffMember   StaffMember? @relation(fields: [staffMemberId], references: [id])
+    staffMemberId Int?
+    Customer      Customer?    @relation(fields: [customerId], references: [id])
+    customerId    Int?
+
+    // Indexes for performance
+    // @@index([reservationDate, timeSlot])
+    // @@index([customerId])
+    @@index([diningAreaId])
+    @@index([status])
 }
 
 model TakeAwayOrderItem {
