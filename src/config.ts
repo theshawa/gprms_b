@@ -31,10 +31,6 @@ export class Config {
     return process.env.CLOUDINARY_API_SECRET || "";
   }
 
-  static CLOUDINARY_URL(): string {
-    return process.env.CLOUDINARY_URL || "";
-  }
-
   static TWILIO_ACCOUNT_SID(): string {
     return process.env.TWILIO_ACCOUNT_SID || "";
   }
