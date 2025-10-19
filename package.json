@@ -37,6 +37,9 @@
   },
   "license": "ISC",
   "main": "dist/server.js",
+  "engines": {
+    "node": ">=18.16.0 <21"
+  },
   "name": "gprms_backend",
   "scripts": {
     "build": "tsc",
