@@ -6,7 +6,7 @@ export const placeOrderHandler = async (req: any, res: any) => {
 
   const order = await prisma.order.create({
     data: {
-      orderCode: `ORD-${Date.now()}`,
+      orderCode: `ORD-${Date.now().toString().slice(-6)}`,
       status: "New",
       totalAmount,
       notes,

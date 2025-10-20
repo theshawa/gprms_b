@@ -1,14 +1,15 @@
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
+import { getSocketIO } from "@/socket/io";
 import { sendSMS } from "@/twilio";
 import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
-export const cancelTakeAwayOrderHandler: RequestHandler<{ id: string }, {}, {}> = async (
-  req,
-  res
-) => {
+export const cancelTakeAwayOrderHandler: RequestHandler<
+  { id: string },
+  {},
+  {}
+> = async (req, res) => {
   const id = parseInt(req.params.id);
 
   const takeAwayOrder = await prisma.takeAwayOrder.update({
@@ -30,7 +31,9 @@ export const cancelTakeAwayOrderHandler: RequestHandler<{ id: string }, {}, {}> 
   const itemsText = takeAwayOrder.items
     .map(
       (item) =>
-        `- ${item.quantity} of ${item.dish.name.toUpperCase()}: ${formatCurrency(
+        `- ${
+          item.quantity
+        } of ${item.dish.name.toUpperCase()}: ${formatCurrency(
           item.priceAtOrder
         )} each`
     )
@@ -40,14 +43,19 @@ export const cancelTakeAwayOrderHandler: RequestHandler<{ id: string }, {}, {}> 
     to: takeAwayOrder.customerPhone,
     body: `Your take-away order is cancelled!\n\nOrder ID: ${
       takeAwayOrder.id
-    }\nTotal Amount: ${formatCurrency(takeAwayOrder.totalAmount)}\n\nItems:\n${itemsText}${
+    }\nTotal Amount: ${formatCurrency(
+      takeAwayOrder.totalAmount
+    )}\n\nItems:\n${itemsText}${
       takeAwayOrder.notes ? `\n\nNotes:\n${takeAwayOrder.notes}` : ""
     }\n\nThank you for ordering with RestoEase!`,
     whatsapp: true,
   });
 
-  // TODO: Notify kitchen dashboard
-  await publishEvent("takeaway-order-cancelled", { orderId: takeAwayOrder.id });
+  // Notify kitchen dashboard
+  const io = getSocketIO();
+  io.of("/kitchen-manager")
+    .to("takeaway-room")
+    .emit("takeaway-order-cancelled", takeAwayOrder);
 
   res.sendStatus(StatusCodes.OK);
 };

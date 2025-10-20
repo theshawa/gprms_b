@@ -8,6 +8,13 @@ import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
 
+import {
+  clearCache,
+  connectRedisStorage,
+  disconnectRedisStorage,
+} from "@/redis/storage";
+import { initCloudinary } from "./cloudinary";
+
 dotenv.config();
 
 const app = express();
@@ -32,30 +39,16 @@ const PORT = process.env.PORT || 3000;
 
 export const expressServer = createServer(app);
 
+import { intializeSocketIO } from "./socket/io";
 import "./socket/server";
 
-import {
-  connectRedisEventsConsumer,
-  disconnectRedisEventsConsumer,
-} from "@/redis/events/consumer";
-import {
-  connectRedisEventsPublisher,
-  disconnectRedisEventsPublisher,
-} from "@/redis/events/publisher";
-import {
-  clearCache,
-  connectRedisStorage,
-  disconnectRedisStorage,
-} from "@/redis/storage";
-import { initCloudinary } from "./cloudinary";
 (async () => {
   await connectRedisStorage();
-  await connectRedisEventsPublisher();
-  await connectRedisEventsConsumer();
 
   await clearCache();
 
   initCloudinary();
+  intializeSocketIO(expressServer);
 
   expressServer.listen(PORT, () => {
     Logger.log(
@@ -66,8 +59,6 @@ import { initCloudinary } from "./cloudinary";
 })();
 
 const gracefulShutdown = async () => {
-  disconnectRedisEventsConsumer();
-  disconnectRedisEventsPublisher();
   disconnectRedisStorage();
   expressServer.close(() => {
     Logger.log("SERVER HEALTH", "HTTP server closed gracefully.");
