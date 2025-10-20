@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { customersRouter } from "./customers/_router";
+import dashboardRouter from "./dashboard/_router";
 import { diningAreasRouter } from "./dining-areas/_router";
 import { diningTablesRouter } from "./dining-tables/_router";
 import { dishesRouter } from "./dishes/_router";
@@ -13,6 +14,7 @@ import { adminCalendarRouter } from "./calendar/_router";
 
 export const adminRouter = Router();
 
+adminRouter.use("/dashboard", dashboardRouter);
 adminRouter.use("/customers", customersRouter);
 adminRouter.use("/reservations", reservationsRouter);
 adminRouter.use("/orders", ordersRouter);
