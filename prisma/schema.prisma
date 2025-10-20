@@ -58,6 +58,8 @@ model Customer {
 
   reservations Reservation[]
   order        Order[]
+  preferences CustomerPreferences?
+  dishFeedback CustomerDishFeedback[]
 
   createdAt DateTime @default(now())
 }
@@ -208,6 +210,8 @@ model Dish {
   menuItems         MenuItem[]
   TakeAwayOrderItem TakeAwayOrderItem[]
   orderItems        OrderItem[]
+  feedback  CustomerDishFeedback[]
+  analytics DishAnalytics?
 }
 
 model DishIngredient {
@@ -355,4 +359,69 @@ model TakeAwayOrder {
   items TakeAwayOrderItem[]
 
   createdAt DateTime @default(now())
+}
+
+model CustomerDishFeedback {
+  id Int @id @default(autoincrement())
+  
+  customerId Int
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  dishId Int
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  
+  feedbackType String // "order", "like", "dislike", "rating"
+  rating       Float?  // 1-5 rating scale
+  
+  timestamp DateTime @default(now())
+  
+  // Additional context
+  mealType  Meal?     // Brunch, Lunch, HighTea, Dinner
+  orderId   Int?      // Reference to order if applicable
+  
+  @@unique([customerId, dishId, feedbackType, timestamp])
+}
+
+model CustomerPreferences {
+  id Int @id @default(autoincrement())
+  
+  customerId Int @unique
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  // Dietary preferences
+  isVegetarian    Boolean @default(false)
+  isVegan         Boolean @default(false)
+  isGlutenFree    Boolean @default(false)
+  spiceLevel      Int     @default(3) // 1-5 scale
+  
+  // Category preferences (JSON array of category IDs)
+  preferredCategories String? // JSON: ["1", "3", "5"]
+  dislikedCategories  String? // JSON: ["2", "4"]
+  
+  // Budget preferences
+  avgBudgetRange String? // "low", "medium", "high"
+  
+  updatedAt DateTime @updatedAt
+}
+
+model DishAnalytics {
+  id Int @id @default(autoincrement())
+  
+  dishId Int @unique
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  
+  totalOrders     Int   @default(0)
+  totalRatings    Int   @default(0)
+  averageRating   Float @default(0)
+  popularityScore Float @default(0)
+  
+  // Time-based analytics
+  weekdayOrders  Int @default(0)
+  weekendOrders  Int @default(0)
+  brunchOrders   Int @default(0)
+  lunchOrders    Int @default(0)
+  highTeaOrders  Int @default(0)
+  dinnerOrders   Int @default(0)
+  
+  lastUpdated DateTime @updatedAt
 }

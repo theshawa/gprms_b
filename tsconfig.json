@@ -13,5 +13,5 @@
       "@/*": ["./src/*"], // Maps @/ to src/ for easier imports
     }
   },
-  "include": ["src/**/*"] // Include all files under the src directory
+  "include": ["src/**/*", "../gprms_f/src/hooks/useRecommendations.ts", "src/services/gorse.ts"] // Include all files under the src directory
 }

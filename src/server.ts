@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
+import { gorseSyncService } from '@/services/gorse-sync';
 
 dotenv.config();
 
@@ -77,3 +78,4 @@ const gracefulShutdown = async () => {
 
 process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
+gorseSyncService.initializeSync().catch(console.error);
