@@ -17,21 +17,8 @@ export const getMyPayrollHistoryHandler: RequestHandler<
       status: "Paid", // Only show paid records to staff
     },
     include: {
-      staffMember: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          role: true,
-        },
-      },
-      processor: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-        },
-      },
+      staffMember: true,
+      processor: true,
     },
     orderBy: [{ year: "desc" }, { month: "desc" }],
   });

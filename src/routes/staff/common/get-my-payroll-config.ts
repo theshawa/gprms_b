@@ -1,10 +1,10 @@
 import { prisma } from "@/prisma";
-import { StaffMember } from "@prisma/client";
+import { StaffMember, StaffPayrollConfig } from "@prisma/client";
 import { RequestHandler } from "express";
 
 export const getMyPayrollConfigHandler: RequestHandler<
   {},
-  {},
+  StaffPayrollConfig | null,
   {},
   {},
   { user: StaffMember }
@@ -14,14 +14,7 @@ export const getMyPayrollConfigHandler: RequestHandler<
   const config = await prisma.staffPayrollConfig.findUnique({
     where: { staffMemberId: staffId },
     include: {
-      staffMember: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          role: true,
-        },
-      },
+      staffMember: true,
     },
   });
 
