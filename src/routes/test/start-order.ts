@@ -1,9 +1,8 @@
-import { publishEvent } from "@/redis/events/publisher";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export const startOrderHandler: RequestHandler = async (req, res) => {
-  await publishEvent("order-started", parseInt(req.params.diningTableId));
+  // await publishEvent("order-started", parseInt(req.params.diningTableId));
 
   // waiterNamespace
   //   .to(`diningArea:${diningTable.diningAreaId}`)

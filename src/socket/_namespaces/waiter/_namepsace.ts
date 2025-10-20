@@ -6,12 +6,10 @@ import {
 import { deleteFromCache, getFromCache, saveToCache } from "@/redis/storage";
 import { io } from "@/socket/server";
 import { staffAuthRequiredMiddleware } from "@/socket/staff-auth-required-middleware";
+import { StaffRole } from "@prisma/client";
 import { WaiterSocket } from "./events.map";
 import { getDiningTables } from "./helpers/get-dining-tables";
 import { getWaiterAssignments } from "./helpers/get-waiter-assignments";
-import { includes } from "zod";
-import { StaffRole } from "@prisma/client";
-import { publishEvent } from "@/redis/events/publisher";
 
 export const waiterNamespace = io.of("/waiter");
 
@@ -79,10 +77,10 @@ waiterNamespace.on("connection", async (socket: WaiterSocket) => {
       try {
         console.log("Waiter accepted table:", data.tableId);
 
-        await publishEvent("accepted-table", {
-          tableId: data.tableId,
-          waiterId: data.waiterId,
-        });
+        // await publishEvent("accepted-table", {
+        //   tableId: data.tableId,
+        //   waiterId: data.waiterId,
+        // });
         await deleteFromCache(`diningTableStatus:${data.tableId}`);
         await saveToCache(
           `diningTableStatus:${data.tableId}`,

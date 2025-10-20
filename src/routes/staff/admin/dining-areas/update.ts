@@ -1,7 +1,6 @@
 import { uploadAssetToCloudinary } from "@/cloudinary";
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { DiningArea } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -11,7 +10,10 @@ import z from "zod";
 export const updateDiningAreaHandlerBodySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
   description: z.string().trim().nonempty("Description is required"),
-  reservationSeatsCount: z.number().min(0, "Reservation seats count must be at least 0").optional(),
+  reservationSeatsCount: z
+    .number()
+    .min(0, "Reservation seats count must be at least 0")
+    .optional(),
 });
 
 export const updateDiningAreaHandler: RequestHandler<
@@ -43,7 +45,10 @@ export const updateDiningAreaHandler: RequestHandler<
     where: { id },
   });
   if (!currentDiningArea) {
-    throw new Exception(StatusCodes.NOT_FOUND, `Dining area with ID ${id} not found`);
+    throw new Exception(
+      StatusCodes.NOT_FOUND,
+      `Dining area with ID ${id} not found`
+    );
   }
 
   // --- Check name conflicts ---
@@ -54,14 +59,18 @@ export const updateDiningAreaHandler: RequestHandler<
     },
   });
   if (duplicate) {
-    throw new Exception(StatusCodes.CONFLICT, "Another dining area with this name already exists");
+    throw new Exception(
+      StatusCodes.CONFLICT,
+      "Another dining area with this name already exists"
+    );
   }
 
   let imageUpload = currentDiningArea.image;
 
   if (req.file) {
-    imageUpload = (await uploadAssetToCloudinary(req.file, "dining-areas", `${id}-image`))
-      .public_id;
+    imageUpload = (
+      await uploadAssetToCloudinary(req.file, "dining-areas", `${id}-image`)
+    ).public_id;
   }
 
   const area = await prisma.diningArea.update({
@@ -75,7 +84,7 @@ export const updateDiningAreaHandler: RequestHandler<
   });
 
   // --- Notify via Redis ---
-  await publishEvent("dining-area-updated", id);
+  // await publishEvent("dining-area-updated", id);
 
   // --- Return final updated area ---
   res.status(StatusCodes.OK).json(area);

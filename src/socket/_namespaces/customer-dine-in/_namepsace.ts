@@ -1,12 +1,10 @@
-import { io } from "@/socket/server";
-import { CustomerDineInSocket } from "./events.map";
-import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
-import { getFromCache, saveToCache } from "@/redis/storage";
 import {
   subscribeToEvent,
   unsubscribeFromEvent,
 } from "@/redis/events/consumer";
+import { getFromCache, saveToCache } from "@/redis/storage";
+import { io } from "@/socket/server";
+import { CustomerDineInSocket } from "./events.map";
 
 export const customerDineInNamespace = io.of("/customer-dine-in");
 
@@ -23,7 +21,7 @@ customerDineInNamespace.on(
           console.log("Customer started order at table:", tableId);
 
           // Notify all waiters via redis
-          await publishEvent("customer-started-dining", tableId);
+          // await publishEvent("customer-started-dining", tableId);
           await saveToCache(
             `diningTableStatus:${tableId}`,
             {

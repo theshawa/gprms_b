@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -26,10 +25,10 @@ export const deleteDiningTableHandler: RequestHandler<{
     },
   });
 
-  await publishEvent(
-    "dining-table-deleted-in-dining-area",
-    currentDiningTable.diningAreaId
-  );
+  // await publishEvent(
+  //   "dining-table-deleted-in-dining-area",
+  //   currentDiningTable.diningAreaId
+  // );
 
   res.sendStatus(StatusCodes.OK);
 };

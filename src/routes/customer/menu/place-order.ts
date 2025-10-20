@@ -24,7 +24,7 @@ export const placeOrderHandler = async (req: any, res: any) => {
     include: { orderItems: true },
   });
 
-  await publishEvent("order-placed", { orderId: order.id });
+  // await publishEvent("order-placed", { orderId: order.id });
 
   res.status(201).json(order);
 };

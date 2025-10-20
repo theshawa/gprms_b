@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { DiningTable } from "@prisma/client";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -50,10 +49,10 @@ export const updateDiningTableHandler: RequestHandler<
     },
   });
 
-  await publishEvent(
-    "dining-table-updated-in-dining-area",
-    req.body.diningAreaId
-  );
+  // await publishEvent(
+  //   "dining-table-updated-in-dining-area",
+  //   req.body.diningAreaId
+  // );
 
   res.json(diningTable);
 };

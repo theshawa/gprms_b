@@ -1,6 +1,4 @@
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
-import { sendSMS } from "@/twilio";
 import { formatCurrency } from "@/utils/format";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -40,7 +38,7 @@ export const markOrderPreparedHandler: RequestHandler<
     .join("\n");
 
   // TODO: Notify kitchen Cashier dashboard
-  await publishEvent("order-prepared", { orderId: order.id });
+  // await publishEvent("order-prepared", { orderId: order.id });
 
   res.sendStatus(StatusCodes.OK);
 };

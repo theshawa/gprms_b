@@ -1,6 +1,5 @@
 import { Exception } from "@/lib/exception";
 import { prisma } from "@/prisma";
-import { publishEvent } from "@/redis/events/publisher";
 import { sendSMS } from "@/twilio";
 import { Reservation } from "@prisma/client";
 import { RequestHandler } from "express";
@@ -10,7 +9,10 @@ import z from "zod";
 export const placeReservationHandlerBodySchema = z.object({
   customerName: z.string().trim().nonempty("Customer name is required"),
   customerPhone: z.string().trim().nonempty("Customer phone is required"),
-  diningAreaId: z.number().int().positive("Dining area ID must be a positive integer"),
+  diningAreaId: z
+    .number()
+    .int()
+    .positive("Dining area ID must be a positive integer"),
   noOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
   reservationDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid reservation date",
@@ -30,7 +32,10 @@ export const placeReservationHandler: RequestHandler<
     where: { id: payload.diningAreaId },
   });
   if (!diningArea) {
-    throw new Exception(StatusCodes.BAD_REQUEST, "Dining area with the given ID does not exist");
+    throw new Exception(
+      StatusCodes.BAD_REQUEST,
+      "Dining area with the given ID does not exist"
+    );
   }
   let reservationCode: string = "";
   let isUnique = false;
@@ -59,14 +64,16 @@ export const placeReservationHandler: RequestHandler<
     },
   });
 
-  await publishEvent("reservation-placed", {
-    reservationId: reservation.id,
-  });
+  // await publishEvent("reservation-placed", {
+  //   reservationId: reservation.id,
+  // });
 
   await sendSMS({
     body: `Dear ${reservation.customerName}, your reservation (Code: ${
       reservation.reservationCode
-    }) at our ${diningArea.name} on ${new Date(reservation.reservationDate).toLocaleString()} for ${
+    }) at our ${diningArea.name} on ${new Date(
+      reservation.reservationDate
+    ).toLocaleString()} for ${
       reservation.noOfSeats
     } seat(s) has been confirmed. We look forward to serving you!`,
     to: reservation.customerPhone,

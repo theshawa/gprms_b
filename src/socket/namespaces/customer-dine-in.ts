@@ -49,7 +49,7 @@ export const registerCustomerDineInHandlers = (socket: Socket) => {
         diningArea: true,
       },
       where: {
-        id: tableId,
+        id: Number(tableId),
       },
     });
 
