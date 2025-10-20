@@ -2,8 +2,14 @@ import { bodyValidatorMiddleware } from "@/middlewares/body-validator";
 import { Router } from "express";
 import { getClosedDaysHandler } from "./get-closed-days";
 import { getReservationsByPhoneHandler } from "./get-dining-areas";
-import { placeReservationHandler, placeReservationHandlerBodySchema } from "./place-reservation";
-import { sendVerificationCodeHandler, sendVerificationCodeSchema } from "./send-verification-code";
+import {
+  placeReservationHandler,
+  placeReservationHandlerBodySchema,
+} from "./place-reservation";
+import {
+  sendVerificationCodeHandler,
+  sendVerificationCodeSchema,
+} from "./send-verification-code";
 import {
   verifyPhoneNumberAndPlaceReservationHandler,
   verifyPhoneNumberAndPlaceReservationHandlerBodySchema,
@@ -26,6 +32,8 @@ reservationRouter.post(
 
 reservationRouter.post(
   "/verify-phone-number-and-place-reservation",
-  bodyValidatorMiddleware(verifyPhoneNumberAndPlaceReservationHandlerBodySchema),
+  bodyValidatorMiddleware(
+    verifyPhoneNumberAndPlaceReservationHandlerBodySchema
+  ),
   verifyPhoneNumberAndPlaceReservationHandler
 );

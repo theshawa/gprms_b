@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getAdminDashboardStatsHandler } from "./get-stats";
-import { getRecentOrdersHandler } from "./get-recent-orders";
 import { getDishesHandler } from "./get-dishes";
+import { getRecentOrdersHandler } from "./get-recent-orders";
 import { getStaffMembersHandler } from "./get-staff";
+import { getAdminDashboardStatsHandler } from "./get-stats";
 
 const router = Router();
 

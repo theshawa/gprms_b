@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import { prisma } from "@/prisma";
+import { Request, Response } from "express";
 
 interface DishResponse {
   id: number;

@@ -1,5 +1,5 @@
-import { RequestHandler } from "express";
 import { prisma } from "@/prisma";
+import { RequestHandler } from "express";
 
 export const getClosedDaysHandler: RequestHandler = async (req, res) => {
   try {

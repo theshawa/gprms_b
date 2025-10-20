@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
 import { prisma } from "@/prisma";
-import { startOfDay, endOfDay } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
+import { Request, Response } from "express";
 
 interface RecentOrderResponse {
   id: number;
@@ -88,8 +88,8 @@ export const getRecentOrdersHandler = async (req: Request, res: Response) => {
     );
 
     // Transform take-away orders
-    const transformedTakeAwayOrders: RecentOrderResponse[] =
-      takeAwayOrders.map((order) => ({
+    const transformedTakeAwayOrders: RecentOrderResponse[] = takeAwayOrders.map(
+      (order) => ({
         id: order.id,
         orderCode: `TA-${order.id}`,
         type: "take-away" as const,
@@ -102,13 +102,11 @@ export const getRecentOrdersHandler = async (req: Request, res: Response) => {
         status: order.status,
         totalAmount: order.totalAmount,
         createdAt: order.createdAt,
-      }));
+      })
+    );
 
     // Combine and sort by created time (most recent first)
-    const allOrders = [
-      ...transformedDineInOrders,
-      ...transformedTakeAwayOrders,
-    ]
+    const allOrders = [...transformedDineInOrders, ...transformedTakeAwayOrders]
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

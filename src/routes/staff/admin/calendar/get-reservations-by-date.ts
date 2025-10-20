@@ -1,5 +1,5 @@
-import { RequestHandler } from "express";
 import { prisma } from "@/prisma";
+import { RequestHandler } from "express";
 
 interface QueryParams {
   date?: string;
@@ -25,7 +25,7 @@ export const getReservationsByDateHandler: RequestHandler<
 
     // Parse the date string as YYYY-MM-DD and create UTC start/end of day
     // This ensures we match the date regardless of server timezone
-    const [year, month, day] = date.split('-').map(Number);
+    const [year, month, day] = date.split("-").map(Number);
     const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
     const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 

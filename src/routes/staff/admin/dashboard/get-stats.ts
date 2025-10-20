@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma";
+import { endOfDay, startOfDay } from "date-fns";
 import { RequestHandler } from "express";
-import { startOfDay, endOfDay } from "date-fns";
 
 interface DashboardStats {
   todayOrders: number;

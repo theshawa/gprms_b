@@ -1,11 +1,14 @@
-import { RequestHandler } from "express";
 import { prisma } from "@/prisma";
+import { RequestHandler } from "express";
 
 interface Params {
   id: string;
 }
 
-export const deleteClosedDayHandler: RequestHandler<Params> = async (req, res) => {
+export const deleteClosedDayHandler: RequestHandler<Params> = async (
+  req,
+  res
+) => {
   try {
     const { id } = req.params;
 

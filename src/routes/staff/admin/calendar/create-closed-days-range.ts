@@ -1,5 +1,5 @@
-import { RequestHandler } from "express";
 import { prisma } from "@/prisma";
+import { RequestHandler } from "express";
 import { z } from "zod";
 
 const createClosedDaysRangeSchema = z.object({
@@ -31,7 +31,15 @@ export const createClosedDaysRangeHandler: RequestHandler<
       });
     }
 
-    const { startDate, endDate, startTime, endTime, isFullDay, reason, description } = validationResult.data;
+    const {
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      isFullDay,
+      reason,
+      description,
+    } = validationResult.data;
 
     // Parse dates
     const start = new Date(startDate);
