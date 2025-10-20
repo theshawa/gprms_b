@@ -1,0 +1,49 @@
+# Database Configuration
+[database]
+data_store = "postgres://gorse:gorse123@gorse-postgres:5432/gorse?sslmode=disable"
+cache_store = "redis://gorse-redis:6379"
+
+# Master Configuration
+[master]
+port = 8086
+host = "0.0.0.0"
+n_jobs = 4
+meta_timeout = "10s"
+
+# Server Configuration  
+[server]
+api_key = "gprms_hera"
+default_n = 10
+
+# Recommendation Configuration
+[recommend]
+cache_size = 1000
+model_fit_period = "1h"     # Retrain model every hour
+model_search_period = "24h" # Search for best model daily
+popular_window = "720h"     # 30 days popularity window
+
+# Models to use
+[recommend.collaborative]
+enable_index = true
+index_recall = 0.9
+index_fit_epoch = 100
+model_fit_epoch = 100
+
+[recommend.replacement]
+enable_replacement = true
+positive_replacement_decay = 0.8
+read_replacement_decay = 0.6
+
+# Item categories (your dish categories)
+[recommend.item_neighbors]
+enable_item_neighbor_index = true
+item_neighbor_type = "similar"
+
+# User preferences
+[recommend.user_neighbors] 
+enable_user_neighbor_index = true
+user_neighbor_type = "similar"
+
+# Evaluation settings
+[tracing]
+enable_tracing = false

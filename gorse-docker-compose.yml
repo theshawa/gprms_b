@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  gorse-redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6380:6379"  # Different port to avoid conflict with existing Redis
+    volumes:
+      - gorse_redis_data:/data
+    networks:
+      - gorse-network
+
+  gorse-postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: gorse123
+      POSTGRES_DB: gorse
+      POSTGRES_USER: gorse
+    ports:
+      - "5433:5432"  # Different port to avoid conflict
+    volumes:
+      - gorse_postgres_data:/var/lib/postgresql/data
+    networks:
+      - gorse-network
+
+  gorse-master:
+    image: zhenghaoz/gorse-master:latest
+    restart: always
+    ports:
+      - "8086:8086"  # Master node port
+    command: >
+      gorse-master
+      --config /etc/gorse/config.toml
+      --log-path /var/log/gorse/master.log
+      --cache-path /var/lib/gorse/master_cache.data
+    volumes:
+      - ./gorse-config.toml:/etc/gorse/config.toml
+      - gorse_logs:/var/log/gorse
+      - gorse_cache:/var/lib/gorse
+    depends_on:
+      - gorse-redis
+      - gorse-postgres
+    networks:
+      - gorse-network
+
+  gorse-server:
+    image: zhenghaoz/gorse-server:latest
+    restart: always
+    ports:
+      - "8088:8088"  # API server port
+    command: >
+      gorse-server
+      --config /etc/gorse/config.toml
+      --log-path /var/log/gorse/server.log
+    volumes:
+      - ./gorse-config.toml:/etc/gorse/config.toml
+      - gorse_logs:/var/log/gorse
+    depends_on:
+      - gorse-master
+    networks:
+      - gorse-network
+
+  gorse-worker:
+    image: zhenghaoz/gorse-worker:latest
+    restart: always
+    command: >
+      gorse-worker
+      --config /etc/gorse/config.toml
+      --log-path /var/log/gorse/worker.log
+      --cache-path /var/lib/gorse/worker_cache.data
+    volumes:
+      - ./gorse-config.toml:/etc/gorse/config.toml
+      - gorse_logs:/var/log/gorse
+      - gorse_cache:/var/lib/gorse
+    depends_on:
+      - gorse-master
+    networks:
+      - gorse-network
+
+networks:
+  gorse-network:
+    driver: bridge
+
+volumes:
+  gorse_redis_data:
+  gorse_postgres_data:
+  gorse_logs:
+  gorse_cache:

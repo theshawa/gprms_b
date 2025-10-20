@@ -21,6 +21,23 @@ services:
       - .docker/redis_data:/data
     networks:
       - backend
+#   gorse:
+#     image: zhenghaoz/gorse-in-one:latest
+#     container_name: gorse
+#     ports:
+#       - "8088:8088"
+#     environment:
+#       # This GORSE_API_KEY environment variable is still the primary way to set the key
+#       - GORSE_API_KEY=gprms_hera
+#     volumes:
+#       - gorse_data:/data
+#       # NEW CHANGE: Mount the config file you just created
+#       - ./config.toml:/etc/gorse/config.toml
+#     command: ["--playground"]
+#     # restart: unless-stopped
+
+# volumes:
+#   gorse_data:
 
 networks:
   backend:
