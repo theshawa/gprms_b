@@ -36,6 +36,7 @@ model StaffMember {
     payrollRecords          PayrollRecord[]
     processedPayrollRecords PayrollRecord[]     @relation("payroll_processor")
     Order                   Order[]
+    closedDays              ClosedDay[]
 }
 
 model StaffActivityLog {
@@ -298,6 +299,27 @@ model Reservation {
     notes String
 
     createdAt DateTime @default(now())
+}
+
+model ClosedDay {
+    id Int @id @default(autoincrement())
+
+    date DateTime
+
+    startTime String? // Format: "HH:MM" (for partial closures)
+    endTime   String? // Format: "HH:MM" (for partial closures)
+
+    isFullDay Boolean @default(true)
+
+    reason      String
+    description String?
+
+    createdById Int
+    createdBy   StaffMember @relation(fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@index([date])
 }
 
 model TakeAwayOrderItem {
